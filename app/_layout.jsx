@@ -1,9 +1,11 @@
+// app/_layout.jsx
 import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
 import {Stack} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
 import React from 'react';
 import {useColorScheme} from 'react-native';
 import {Provider} from 'react-redux';
+// NOTE: adjust this import if your Colors file is not under /constants
 import {Colors} from '../constants/Colors';
 import {store} from '../store';
 
@@ -32,8 +34,19 @@ export default function RootLayout() {
 		<ThemeProvider value={theme}>
 			<Provider store={store}>
 				<Stack>
-					{/* replace with your routes; hide header for tab layout */}
+					{/* Initial gate */}
+					<Stack.Screen name="index" options={{headerShown: false}} />
+
+					{/* Tabs */}
 					<Stack.Screen name="(tabs)" options={{headerShown: false}} />
+
+					{/* Onboarding flow */}
+					<Stack.Screen name="onboarding/index" options={{headerShown: false}} />
+
+					{/* Auth */}
+					<Stack.Screen name="auth/login" options={{title: 'Login'}} />
+
+					{/* Fallback */}
 					<Stack.Screen name="+not-found" />
 				</Stack>
 				<StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
