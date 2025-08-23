@@ -3,9 +3,11 @@ import {Stack} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
 import React from 'react';
 import {useColorScheme} from 'react-native';
+import {Provider} from 'react-redux';
 import {Colors} from '../constants/Colors';
+import {store} from '../store';
 
-const buildTheme = (scheme: 'light' | 'dark' | null | undefined) => {
+const buildTheme = (scheme) => {
 	const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
 	const C = Colors[scheme ?? 'light'];
 	return {
@@ -28,12 +30,14 @@ export default function RootLayout() {
 
 	return (
 		<ThemeProvider value={theme}>
-			<Stack>
-				{/* replace with your routes; hide header for tab layout */}
-				<Stack.Screen name="(tabs)" options={{headerShown: false}} />
-				<Stack.Screen name="+not-found" />
-			</Stack>
-			<StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+			<Provider store={store}>
+				<Stack>
+					{/* replace with your routes; hide header for tab layout */}
+					<Stack.Screen name="(tabs)" options={{headerShown: false}} />
+					<Stack.Screen name="+not-found" />
+				</Stack>
+				<StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+			</Provider>
 		</ThemeProvider>
 	);
 }
