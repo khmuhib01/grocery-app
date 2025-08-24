@@ -542,11 +542,18 @@ export const PAYMENT_METHODS = [
  *      HELPERS / MAPS
  * ========================= */
 
-export const mapById = (arr) => Object.fromEntries(arr.map((x) => [x.id, x]));
+export const mapById = (arr) => Object.fromEntries(arr.map((x) => [String(x.id), x]));
 export const BRANDS_BY_ID = mapById(BRANDS);
-export const PRODUCTS_BY_ID = mapById(PRODUCTS);
 export const STORES_BY_ID = mapById(STORES);
 export const ZONES_BY_CODE = mapById(DELIVERY_ZONES);
+
+// Unified product pool: catalog + home-strip items → single lookup map
+export const ALL_HOME_STRIP_PRODUCTS = [...HOT_FAST_MOVERS, ...TRENDING, ...RECOMMENDED];
+
+export const PRODUCTS_BY_ID = [...PRODUCTS, ...ALL_HOME_STRIP_PRODUCTS].reduce((acc, p) => {
+	acc[String(p.id)] = p;
+	return acc;
+}, {});
 
 // Quick shipping fee calculator using SHIPPING_RULES
 export const calcShippingFee = (cartTotal) => {

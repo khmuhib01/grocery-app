@@ -10,8 +10,8 @@ export default function ProductCard({
 	onChangeQty,
 	onAdd,
 	width = 160,
-	onPressCard,
-	variant = 'list', // 'list' (carousel) | 'grid' (compact)
+	onPressCard, // ← navigate only when image or title pressed
+	variant = 'list', // 'list' | 'grid'  (kept for your updated design)
 }) {
 	const isControlled = typeof controlledQty === 'number';
 	const [qtyUncontrolled, setQtyUncontrolled] = useState(0);
@@ -30,16 +30,16 @@ export default function ProductCard({
 	const isGrid = variant === 'grid';
 
 	return (
-		<Pressable
+		<View
 			style={[
 				styles.card,
 				{
 					width,
-					marginRight: isGrid ? 0 : 14, // 🔹 no right-gap inside grid
+					marginRight: isGrid ? 0 : 14,
 					padding: isGrid ? 10 : 12,
 				},
 			]}
-			onPress={() => onPressCard?.(item)}
+			// ⛔️ no onPress on the whole card (popup removed)
 		>
 			{item.off ? (
 				<View style={styles.offBadge}>
@@ -49,13 +49,18 @@ export default function ProductCard({
 				</View>
 			) : null}
 
-			<View style={[styles.imgWrap, {height: isGrid ? 100 : 120}]}>
+			{/* ✅ only image opens details */}
+			<Pressable onPress={() => onPressCard?.(item)} style={[styles.imgWrap, {height: isGrid ? 100 : 120}]}>
 				<Image source={{uri: item.img}} style={styles.img} resizeMode="cover" />
-			</View>
+			</Pressable>
 
-			<Text style={[styles.name, {fontSize: isGrid ? 13 : 14}]} numberOfLines={2}>
-				{item.name}
-			</Text>
+			{/* ✅ only title opens details */}
+			<Pressable onPress={() => onPressCard?.(item)}>
+				<Text style={[styles.name, {fontSize: isGrid ? 13 : 14}]} numberOfLines={2}>
+					{item.name}
+				</Text>
+			</Pressable>
+
 			<Text style={styles.unit}>EACH</Text>
 
 			<View style={styles.priceRow}>
@@ -77,7 +82,7 @@ export default function ProductCard({
 				) : (
 					<TouchableOpacity
 						onPress={(e) => {
-							e.stopPropagation?.();
+							e.stopPropagation?.(); // make sure it never bubbles
 							handleAdd();
 						}}
 						style={[styles.addOutline, {height: isGrid ? 32 : 34, marginTop: isGrid ? 8 : 10}]}
@@ -88,7 +93,7 @@ export default function ProductCard({
 					</TouchableOpacity>
 				)}
 			</View>
-		</Pressable>
+		</View>
 	);
 }
 

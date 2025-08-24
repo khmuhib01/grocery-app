@@ -30,7 +30,6 @@ import {DealsOfWeek, HelpSection, OffersSection, ProductStrip, StickySearch} fro
 
 // product sheet & cart bar
 import CartBar from '../../../../components/cart/CartBar';
-import ProductSheet from '../../../../components/product/ProductSheet';
 
 const {width} = Dimensions.get('window');
 
@@ -42,23 +41,20 @@ export default function HomeScreen() {
 	const totalAmount = useSelector((state) => state.cart.totalAmount);
 	const cartItems = useSelector((state) => state.cart.items.length);
 
-	console.log('cartItems', cartItems);
+	// console.log('cartItems', cartItems);
 
 	const [slideIndex, setSlideIndex] = useState(0);
 	const [activeCat, setActiveCat] = useState(null);
 	const [activeTab, setActiveTab] = useState('grocery');
-
-	// product sheet state
-	const [sheetItem, setSheetItem] = useState(null);
 
 	// hero slider refs
 	const slideRef = useRef(null);
 	const indexRef = useRef(0);
 	const cardWidth = width - 24;
 
-	const storeProduct = useSelector((state) => state.products);
+	// const storeProduct = useSelector((state) => state.products);
 
-	console.log('storeProduct', storeProduct);
+	// console.log('storeProduct', storeProduct);
 
 	useEffect(() => {
 		indexRef.current = slideIndex;
@@ -243,7 +239,7 @@ export default function HomeScreen() {
 						onViewAll={() => goViewAll('Hot & Fast Movers')}
 						productCardProps={{
 							onAdd: handleAddToCart,
-							onPressCard: (it) => setSheetItem(it),
+							onPressCard: (it) => router.push(`/products/${encodeURIComponent(it.id)}`),
 						}}
 					/>
 					<ProductStrip
@@ -253,7 +249,7 @@ export default function HomeScreen() {
 						onViewAll={() => goViewAll('Trending This Week')}
 						productCardProps={{
 							onAdd: handleAddToCart,
-							onPressCard: (it) => setSheetItem(it),
+							onPressCard: (it) => router.push(`/product/${encodeURIComponent(it.id)}`),
 						}}
 					/>
 					<ProductStrip
@@ -262,7 +258,7 @@ export default function HomeScreen() {
 						onViewAll={() => goViewAll('Recommended for you')}
 						productCardProps={{
 							onAdd: handleAddToCart,
-							onPressCard: (it) => setSheetItem(it),
+							onPressCard: (it) => router.push(`/product/${encodeURIComponent(it.id)}`),
 						}}
 					/>
 
@@ -270,18 +266,6 @@ export default function HomeScreen() {
 					<HelpSection />
 				</ScrollView>
 			</ScrollView>
-
-			{/* product quick view sheet */}
-			{sheetItem ? (
-				<ProductSheet
-					item={sheetItem}
-					onClose={() => setSheetItem(null)}
-					onAdd={(it) => {
-						handleAddToCart(it);
-						setSheetItem(null);
-					}}
-				/>
-			) : null}
 
 			{/* cart bar (redux totals) */}
 			{totalQty > 0 ? (
