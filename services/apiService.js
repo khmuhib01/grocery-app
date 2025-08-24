@@ -1,31 +1,36 @@
 import http from './http';
 
-// Auth
-export const apiLogin = (payload) => {
-	// payload: { email, password } or { phone, otp } – adapt to your backend
-	return http.post('/auth/login', payload).then((r) => r.data);
+// Allow both shapes: {success,data} or raw object/array
+const unwrap = (r) => (r?.data?.data !== undefined ? r.data.data : r.data);
+
+// HOME (json-server: GET /home → returns an object)
+export const apiGetHome = async () => {
+	const r = await http.get('/home');
+	return unwrap(r);
 };
 
-export const apiRegister = (payload) => {
-	// payload: { name, email, phone, password }
-	return http.post('/auth/register', payload).then((r) => r.data);
+// PRODUCTS list (json-server: GET /products → array)
+export const apiGetProducts = async (params = {}) => {
+	const r = await http.get('/products', {params});
+	return unwrap(r);
 };
 
-export const apiGetProfile = () => http.get('/me').then((r) => r.data);
+// PRODUCT detail (json-server: GET /products/:id → object)
+// json-server uses numeric or string ids—your db.json uses string ids (e.g. prod_rice_miniket_5kg)
+export const apiGetProductById = async (id) => {
+	const r = await http.get(`/products/${id}`);
+	return unwrap(r);
+};
 
-// Catalog
-export const apiGetStores = (params = {}) => http.get('/stores', {params}).then((r) => r.data);
+// Simple search (json-server supports ?q= for full-text)
+export const apiSearchProducts = async (q, params = {}) => {
+	const r = await http.get('/products', {params: {q, ...params}});
+	return unwrap(r);
+};
 
-export const apiGetStoreDetails = (storeId) => http.get(`/stores/${storeId}`).then((r) => r.data);
-
-export const apiGetStoreProducts = (storeId, params = {}) =>
-	http.get(`/stores/${storeId}/products`, {params}).then((r) => r.data);
-
-// Search
-export const apiSearchProducts = (query, params = {}) =>
-	http.get('/products/search', {params: {q: query, ...params}}).then((r) => r.data);
-
-// Cart / Orders
-export const apiCreateOrder = (payload) => http.post('/orders', payload).then((r) => r.data);
-
-export const apiGetOrders = (params = {}) => http.get('/orders', {params}).then((r) => r.data);
+// (Keep your auth/order endpoints for later real backend)
+export const apiLogin = (payload) => http.post('/auth/login', payload).then(unwrap);
+export const apiRegister = (payload) => http.post('/auth/register', payload).then(unwrap);
+export const apiGetProfile = () => http.get('/me').then(unwrap);
+export const apiCreateOrder = (payload) => http.post('/orders', payload).then(unwrap);
+export const apiGetOrders = (params = {}) => http.get('/orders', {params}).then(unwrap);

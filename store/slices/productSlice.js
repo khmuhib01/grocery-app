@@ -1,18 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-// Local mock fallback
-import {
-	BRANDS,
-	CATEGORIES,
-	DEALS,
-	HOT_FAST_MOVERS,
-	OFFERS,
-	PRODUCTS,
-	PRODUCTS_BY_ID,
-	RECOMMENDED,
-	SLIDES,
-	tabs,
-	TRENDING,
-} from '../../data/homeData';
+import http from '../../services/http';
 
 const initialState = {
 	home: {
@@ -31,42 +18,27 @@ const initialState = {
 	error: null,
 };
 
-export const loadHome = createAsyncThunk('products/loadHome', async (_, {getState, rejectWithValue}) => {
-	try {
-		// If you have an API endpoint, use it here:
-		// const {data} = await api.get('/home', { headers: authHeaders(getState) });
-		// return data;
-
-		// Fallback to local mocks for now:
-		return {
-			tabs,
-			slides: SLIDES,
-			brands: BRANDS,
-			categories: CATEGORIES,
-			hot: HOT_FAST_MOVERS,
-			trending: TRENDING,
-			recommended: RECOMMENDED,
-			offers: OFFERS,
-			deals: DEALS,
-			products: PRODUCTS,
-		};
-	} catch (e) {
-		return rejectWithValue(e?.response?.data || e.message);
-	}
+// GET /home from json-server
+export const loadHome = createAsyncThunk('products/loadHome', async () => {
+	const {data} = await http.get('/home'); // data is { tabs, slides, brands, categories, sections:{...} }
+	// Flatten sections → state.home
+	return {
+		tabs: data.tabs || [],
+		slides: data.slides || [],
+		brands: data.brands || [],
+		categories: data.categories || [],
+		hot: data.sections?.hot || [],
+		trending: data.sections?.trending || [],
+		recommended: data.sections?.recommended || [],
+		offers: data.sections?.offers || [],
+		deals: data.sections?.deals || [],
+	};
 });
 
-export const loadProductById = createAsyncThunk('products/loadById', async (id, {getState, rejectWithValue}) => {
-	try {
-		// const {data} = await api.get(`/products/${id}`, { headers: authHeaders(getState) });
-		// return data;
-
-		// Fallback to mock:
-		const found = PRODUCTS_BY_ID[id];
-		if (!found) throw new Error('Product not found');
-		return found;
-	} catch (e) {
-		return rejectWithValue(e?.response?.data || e.message);
-	}
+// GET /products/:id
+export const loadProductById = createAsyncThunk('products/loadById', async (id) => {
+	const {data} = await http.get(`/products/${id}`);
+	return data; // single product object
 });
 
 const slice = createSlice({
@@ -80,29 +52,22 @@ const slice = createSlice({
 		});
 		b.addCase(loadHome.fulfilled, (s, a) => {
 			s.status = 'succeeded';
-			const d = a.payload;
-			s.home = {
-				tabs: d.tabs,
-				slides: d.slides,
-				brands: d.brands,
-				categories: d.categories,
-				hot: d.hot,
-				trending: d.trending,
-				recommended: d.recommended,
-				offers: d.offers,
-				deals: d.deals,
-			};
-			// seed byId map
-			for (const p of d.products || []) s.byId[p.id] = p;
+			s.home = a.payload;
+
+			// seed byId from visible sections (optional)
+			const arr = [...s.home.hot, ...s.home.trending, ...s.home.recommended];
+			arr.forEach((p) => {
+				if (p?.id) s.byId[p.id] = {...(s.byId[p.id] || {}), ...p};
+			});
 		});
 		b.addCase(loadHome.rejected, (s, a) => {
 			s.status = 'failed';
-			s.error = a.payload || String(a.error);
+			s.error = a.error?.message || 'Failed to load';
 		});
 
 		b.addCase(loadProductById.fulfilled, (s, a) => {
 			const p = a.payload;
-			s.byId[p.id] = p;
+			if (p?.id) s.byId[p.id] = p;
 		});
 	},
 });

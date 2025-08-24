@@ -1,0 +1,346 @@
+{
+  "home": {
+    "brands": [
+      {
+        "color": "#e0e7ff",
+        "id": "b1",
+        "name": "Unilever"
+      },
+      {
+        "color": "#ffe4e6",
+        "id": "b2",
+        "name": "Pran-RFL"
+      },
+      {
+        "color": "#fde68a",
+        "id": "b3",
+        "name": "ACI"
+      },
+      {
+        "color": "#e9d5ff",
+        "id": "b4",
+        "name": "Teer"
+      },
+      {
+        "color": "#cffafe",
+        "id": "b5",
+        "name": "Square"
+      },
+      {
+        "color": "#fef3c7",
+        "id": "b6",
+        "name": "Kazi Farmas"
+      }
+    ],
+    "categories": [
+      {
+        "id": "c1",
+        "img": "https://picsum.photos/seed/eggs/200/200",
+        "name": "Eggs"
+      },
+      {
+        "id": "c2",
+        "img": "https://picsum.photos/seed/frozen/200/200",
+        "name": "Frozen"
+      },
+      {
+        "id": "c3",
+        "img": "https://picsum.photos/seed/noodles/200/200",
+        "name": "Noodles"
+      },
+      {
+        "id": "c4",
+        "img": "https://picsum.photos/seed/tea/200/200",
+        "name": "Tea"
+      },
+      {
+        "id": "c5",
+        "img": "https://picsum.photos/seed/coffee/200/200",
+        "name": "Coffee"
+      },
+      {
+        "id": "c6",
+        "img": "https://picsum.photos/seed/biscuits/200/200",
+        "name": "Biscuits"
+      },
+      {
+        "id": "c7",
+        "img": "https://picsum.photos/seed/soft/200/200",
+        "name": "Soft Drinks"
+      },
+      {
+        "id": "c8",
+        "img": "https://picsum.photos/seed/ice/200/200",
+        "name": "Ice Cream"
+      },
+      {
+        "id": "c9",
+        "img": "https://picsum.photos/seed/candy/200/200",
+        "name": "Candy & Chocolate"
+      }
+    ],
+    "sections": {
+      "deals": [
+        {
+          "id": "d1",
+          "img": "https://picsum.photos/seed/oil5l/500/500",
+          "mrp": 907,
+          "name": "Rupchanda Soyabean Oil 5L",
+          "off": 18,
+          "price": 889,
+          "unit": "EACH"
+        },
+        {
+          "id": "d2",
+          "img": "https://picsum.photos/seed/egg12/500/500",
+          "mrp": 175,
+          "name": "Kazi Farmas Egg 12pcs",
+          "off": 10,
+          "price": 165,
+          "unit": "EACH"
+        },
+        {
+          "id": "d3",
+          "img": "https://picsum.photos/seed/miniket/500/500",
+          "mrp": 650,
+          "name": "Pran Miniket Rice 5kg",
+          "off": 35,
+          "price": 615,
+          "unit": "EACH"
+        }
+      ],
+      "hot": [
+        {
+          "brand_id": "b2",
+          "category_id": "c1",
+          "id": "p1",
+          "img": "https://picsum.photos/seed/p1/300/300",
+          "mrp": 125,
+          "name": "Alu Regular Loose Kg",
+          "off": 6,
+          "price": 119,
+          "unit": "Per Kg"
+        },
+        {
+          "brand_id": "b2",
+          "category_id": "c3",
+          "id": "p2",
+          "img": "https://picsum.photos/seed/p2/300/300",
+          "mrp": 140,
+          "name": "Fresh Atta 2kg",
+          "off": 20,
+          "price": 120,
+          "unit": "Per Piece"
+        },
+        {
+          "brand_id": "b4",
+          "category_id": "c9",
+          "id": "p3",
+          "img": "https://picsum.photos/seed/p3/300/300",
+          "mrp": 120,
+          "name": "Teer Sugar 1kg",
+          "off": 10,
+          "price": 110,
+          "unit": "Per Piece"
+        }
+      ],
+      "offers": [
+        {
+          "id": "o1",
+          "img": "https://picsum.photos/seed/offer1/800/400",
+          "title": "Oil Mega Offer"
+        },
+        {
+          "id": "o2",
+          "img": "https://picsum.photos/seed/offer2/800/400",
+          "title": "Dettol Germ Defence"
+        },
+        {
+          "id": "o3",
+          "img": "https://picsum.photos/seed/offer3/800/400",
+          "title": "Rice Festival"
+        }
+      ],
+      "recommended": [
+        {
+          "brand_id": "b3",
+          "category_id": "c3",
+          "id": "p7",
+          "img": "https://picsum.photos/seed/p7/300/300",
+          "mrp": 80,
+          "name": "Radhuni Haleem Mix 200gm",
+          "off": 10,
+          "price": 70,
+          "unit": "Per Piece"
+        },
+        {
+          "brand_id": "b2",
+          "category_id": "c2",
+          "id": "p8",
+          "img": "https://picsum.photos/seed/p8/300/300",
+          "mrp": 180,
+          "name": "Gorur Mangsho–Alu Mix Combo (Small)",
+          "off": 20,
+          "price": 160,
+          "unit": "Per Piece"
+        },
+        {
+          "brand_id": "b6",
+          "category_id": "c1",
+          "id": "p9",
+          "img": "https://picsum.photos/seed/p9/300/300",
+          "mrp": 14,
+          "name": "Egg Loose",
+          "off": 1.5,
+          "price": 12.5,
+          "unit": "Per Piece"
+        }
+      ],
+      "trending": [
+        {
+          "brand_id": "b5",
+          "category_id": "c5",
+          "id": "p4",
+          "img": "https://picsum.photos/seed/p4/300/300",
+          "mrp": 945,
+          "name": "Marks Full Cream Milk Powder 1000g",
+          "off": 75,
+          "price": 870,
+          "unit": "Per Piece"
+        },
+        {
+          "brand_id": "b5",
+          "category_id": "c4",
+          "id": "p5",
+          "img": "https://picsum.photos/seed/p5/300/300",
+          "mrp": 225,
+          "name": "Seylon Family Blend Tea 400gm",
+          "off": 40,
+          "price": 185,
+          "unit": "Per Piece"
+        },
+        {
+          "brand_id": "b5",
+          "category_id": "c6",
+          "id": "p6",
+          "img": "https://picsum.photos/seed/p6/300/300",
+          "mrp": 235,
+          "name": "Surf Excel 1kg",
+          "off": 25,
+          "price": 210,
+          "unit": "Per Piece"
+        }
+      ]
+    },
+    "slides": [
+      {
+        "id": "s1",
+        "img": "https://picsum.photos/seed/slide1/1200/500",
+        "title": "10% Discount!"
+      },
+      {
+        "id": "s2",
+        "img": "https://picsum.photos/seed/slide2/1200/500",
+        "title": "Weekend Combo Deals"
+      },
+      {
+        "id": "s3",
+        "img": "https://picsum.photos/seed/slide3/1200/500",
+        "title": "Bank Offer"
+      }
+    ],
+    "tabs": [
+      {
+        "icon": "basket",
+        "id": "grocery",
+        "label": "Grocery"
+      },
+      {
+        "icon": "medkit",
+        "id": "pharmacy",
+        "label": "Pharmacy"
+      },
+      {
+        "icon": "shirt",
+        "id": "clothes",
+        "label": "Clothes"
+      },
+      {
+        "icon": "fast-food",
+        "id": "cookups",
+        "label": "Cookups"
+      }
+    ]
+  },
+  "products": [
+    {
+      "brand_id": "b2",
+      "category_ids": [
+        "gcg",
+        "sta",
+        "rice"
+      ],
+      "id": "prod_rice_miniket_5kg",
+      "images": [
+        "https://picsum.photos/seed/miniket/600/600"
+      ],
+      "mrp": 650,
+      "name": "Pran Miniket Rice 5kg",
+      "price": 615,
+      "rating": 4.7,
+      "sku": "RICE-MINI-5",
+      "stock": 42,
+      "unit": "bag",
+      "variants": [
+        {
+          "id": "v1",
+          "label": "5kg",
+          "priceDelta": 0,
+          "stock": 42
+        },
+        {
+          "id": "v2",
+          "label": "10kg",
+          "priceDelta": 580,
+          "stock": 21
+        }
+      ]
+    },
+    {
+      "brand_id": "b3",
+      "category_ids": [
+        "gcg",
+        "sta"
+      ],
+      "id": "prod_oil_rupchanda_1l",
+      "images": [
+        "https://picsum.photos/seed/rup1l/600/600"
+      ],
+      "mrp": 205,
+      "name": "Rupchanda Soyabean Oil 1L",
+      "price": 190,
+      "rating": 4.5,
+      "sku": "OIL-RUP-1L",
+      "stock": 120,
+      "unit": "bottle"
+    },
+    {
+      "brand_id": "b6",
+      "category_ids": [
+        "gcg",
+        "sta"
+      ],
+      "id": "prod_egg_12pcs",
+      "images": [
+        "https://picsum.photos/seed/egg12/600/600"
+      ],
+      "mrp": 175,
+      "name": "Kazi Farmas Egg 12pcs",
+      "price": 165,
+      "rating": 4.6,
+      "sku": "EGG-12",
+      "stock": 64,
+      "unit": "tray"
+    }
+  ]
+}
