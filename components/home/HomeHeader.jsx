@@ -1,6 +1,7 @@
 // components/HomeHeader.jsx
 import {Ionicons} from '@expo/vector-icons';
 import {useNavigation} from '@react-navigation/native';
+import {LinearGradient} from 'expo-linear-gradient';
 import {router} from 'expo-router';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {COLORS} from '../../constants/Colors';
@@ -14,65 +15,80 @@ export default function HomeHeader({
 	onPressSearch = () => {
 		router.push('/search');
 	},
-	showSearch = true, // controls whether header shows its own search
+	showSearch = true,
 }) {
 	const navigation = useNavigation();
 
 	return (
-		<View style={styles.headerWrap}>
+		<LinearGradient
+			colors={[COLORS.success, '#5ad08a']}
+			start={{x: 0, y: 0}}
+			end={{x: 1, y: 1}}
+			style={styles.headerWrap}
+		>
 			{/* top bar: menu • logo • settings */}
 			<View style={styles.headerTop}>
-				<TouchableOpacity style={styles.circleBtn} onPress={() => navigation?.openDrawer?.()} activeOpacity={0.8}>
-					<Ionicons name="menu" size={22} color={COLORS.dark} />
+				<TouchableOpacity style={styles.circleBtn} onPress={() => navigation?.openDrawer?.()} activeOpacity={0.9}>
+					<Ionicons name="menu" size={20} color={COLORS.dark} />
 				</TouchableOpacity>
 
 				<View style={styles.brandRow}>
-					<Text style={styles.brandMeena}>test</Text>
-					<Text style={styles.brandBazar}>pro</Text>
+					<Text style={styles.brandPrimary}>test</Text>
+					<Text style={styles.brandSecondary}>pro</Text>
 					<Ionicons name="cart" size={16} color={COLORS.dark} style={styles.ml4} />
 				</View>
 
-				<TouchableOpacity style={styles.circleBtn} onPress={() => router.push('/profile')} activeOpacity={0.8}>
+				<TouchableOpacity style={styles.circleBtn} onPress={() => router.push('/profile')} activeOpacity={0.9}>
 					<Ionicons name="settings-outline" size={20} color={COLORS.dark} />
 				</TouchableOpacity>
 			</View>
 
 			{/* eta + location */}
-			<TouchableOpacity style={styles.locationRow} onPress={onPressLocation} activeOpacity={0.9}>
-				<View style={styles.etaRow}>
-					<Ionicons name="time-outline" size={16} color={COLORS.white} />
+			<TouchableOpacity style={styles.infoRow} onPress={onPressLocation} activeOpacity={0.95}>
+				<View style={styles.etaPill}>
+					<Ionicons name="time-outline" size={14} color={COLORS.primary} />
 					<Text style={styles.etaText}>{etaText}</Text>
-					<Ionicons name="location-outline" size={16} color={COLORS.white} style={styles.ml10} />
-					<Text style={styles.areaText}>{area}</Text>
 				</View>
-				<View style={styles.rightArrow}>
+				<View style={styles.etaPill}>
+					<Ionicons name="location-outline" size={14} color={COLORS.primary} />
+					<Text style={styles.etaText}>{area}</Text>
 					<Ionicons name="chevron-forward" size={14} color={COLORS.primary} />
 				</View>
+
+				{/* <View style={styles.locPill}>
+					<Ionicons name="location-outline" size={14} color={COLORS.dark} />
+					<Text style={styles.areaText} numberOfLines={1}>
+						{area}
+					</Text>
+					<View style={styles.rightArrow}>
+						<Ionicons name="chevron-forward" size={14} color={COLORS.primary} />
+					</View>
+				</View> */}
 			</TouchableOpacity>
 
-			{/* header search (use showSearch=false if you have sticky search outside) */}
+			{/* header search */}
 			{showSearch && (
-				<TouchableOpacity style={styles.searchBar} onPress={onPressSearch} activeOpacity={0.9}>
-					<Ionicons name="search" size={18} color={COLORS.white} />
+				<TouchableOpacity style={styles.searchBar} onPress={onPressSearch} activeOpacity={0.95}>
+					<Ionicons name="search" size={18} color={COLORS.gray500} />
 					<Text style={styles.searchPlaceholder}>Search by product name or brand</Text>
 				</TouchableOpacity>
 			)}
-		</View>
+		</LinearGradient>
 	);
 }
 
 const styles = StyleSheet.create({
 	headerWrap: {
-		backgroundColor: COLORS.success,
 		paddingTop: 12,
 		paddingHorizontal: 12,
 		paddingBottom: 14,
 	},
+
+	// top
 	headerTop: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		backgroundColor: COLORS.success,
 	},
 	circleBtn: {
 		width: 38,
@@ -83,34 +99,64 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	brandRow: {flexDirection: 'row', alignItems: 'center'},
-	brandMeena: {fontSize: 20, fontWeight: '900', color: COLORS.danger, textTransform: 'lowercase'},
-	brandBazar: {fontSize: 20, fontWeight: '900', color: COLORS.dark, marginLeft: 4, textTransform: 'lowercase'},
+	brandPrimary: {fontSize: 20, fontWeight: '900', color: COLORS.danger, textTransform: 'lowercase'},
+	brandSecondary: {fontSize: 20, fontWeight: '900', color: COLORS.dark, marginLeft: 4, textTransform: 'lowercase'},
+	ml4: {marginLeft: 4},
 
-	locationRow: {flexDirection: 'row', alignItems: 'center', marginTop: 10, justifyContent: 'space-between'},
-	etaRow: {flexDirection: 'row', alignItems: 'center'},
-	etaText: {color: COLORS.white, marginLeft: 6, fontWeight: '700'},
+	// middle row
+	infoRow: {marginTop: 10, gap: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
+	etaPill: {
+		alignSelf: 'flex-start',
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 6,
+		paddingVertical: 6,
+		paddingHorizontal: 10,
+		borderRadius: 999,
+		backgroundColor: 'rgba(255,255,255,0.9)',
+		borderWidth: 1,
+		borderColor: 'rgba(0,0,0,0.06)',
+	},
+	etaText: {color: COLORS.primary, fontWeight: '900', fontSize: 12},
+
+	locPill: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
+		backgroundColor: '#ffffff',
+		borderRadius: 12,
+		paddingVertical: 8,
+		paddingHorizontal: 10,
+		borderWidth: 1,
+		borderColor: 'rgba(0,0,0,0.06)',
+	},
+	areaText: {color: COLORS.dark, fontWeight: '800', flexShrink: 1},
 	rightArrow: {
-		width: 20,
-		height: 20,
-		borderRadius: 16,
-		backgroundColor: COLORS.white,
+		marginLeft: 6,
+		width: 22,
+		height: 22,
+		borderRadius: 11,
+		backgroundColor: '#f2f8f3',
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-	areaText: {color: COLORS.white, marginHorizontal: 6, fontWeight: '700'},
 
+	// search
 	searchBar: {
 		marginTop: 10,
-		backgroundColor: COLORS.success,
+		height: 46,
 		borderRadius: 12,
 		paddingHorizontal: 12,
-		height: 44,
 		flexDirection: 'row',
 		alignItems: 'center',
+		backgroundColor: '#ffffff',
 		borderWidth: 1,
-		borderColor: 'rgba(255,255,255,0.25)',
+		borderColor: 'rgba(0,0,0,0.06)',
+		shadowColor: '#000',
+		shadowOpacity: 0.06,
+		shadowOffset: {width: 0, height: 6},
+		shadowRadius: 10,
+		elevation: 2,
 	},
-	searchPlaceholder: {marginLeft: 8, color: COLORS.white, fontWeight: '600'},
-	ml4: {marginLeft: 4},
-	ml10: {marginLeft: 10},
+	searchPlaceholder: {marginLeft: 8, color: COLORS.gray500, fontWeight: '700'},
 });
