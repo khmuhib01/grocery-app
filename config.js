@@ -1,7 +1,6 @@
 // Central place for environment-like values.
-// Later you can read from app.config.js -> Constants.manifest.extra
 export const API = {
-	BASE_URL: 'https://your-api.example.com', // ← change this
+	BASE_URL: 'http://localhost:4000', // ← json-server base
 	TIMEOUT_MS: 15000,
 };
 

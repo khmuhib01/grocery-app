@@ -8,7 +8,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "api": "json-server --watch db.json --port 4000"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -53,6 +54,7 @@
     "@types/react": "~19.0.10",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
+    "json-server": "^1.0.0-beta.3",
     "typescript": "~5.8.3"
   },
   "private": true

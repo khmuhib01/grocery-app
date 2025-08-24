@@ -34,6 +34,9 @@ export default function TabsLayout() {
 					tabBarIcon: ({color, size}) => <Ionicons name="file-tray-full-outline" color={color} size={size} />,
 				}}
 			/>
+			{/* 👇 Hide the dynamic detail route from being a tab */}
+			<Tabs.Screen name="orders/[id]" options={{href: null}} />
+
 			<Tabs.Screen
 				name="profile/index"
 				options={{
