@@ -8,7 +8,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 
 // redux
 import {useDispatch, useSelector} from 'react-redux';
-import {addToCart} from '../../../../store/slices/cartSlice';
+import {addToCart, decreaseQty, increaseQty} from '../../../../store/slices/cartSlice';
 
 // ui + constants + data
 import HomeHeader from '../../../../components/home/HomeHeader';
@@ -39,9 +39,15 @@ export default function HomeScreen() {
 	// cart from redux
 	const totalQty = useSelector((state) => state.cart.totalQty);
 	const totalAmount = useSelector((state) => state.cart.totalAmount);
-	const cartItems = useSelector((state) => state.cart.items.length);
+	const cartLen = useSelector((state) => state.cart.items.length);
+	const cart = useSelector((state) => state.cart.items);
 
-	// console.log('cartItems', cartItems);
+	// quick map for O(1) lookup
+	const cartMap = useMemo(() => {
+		const m = Object.create(null);
+		for (const it of cart) m[it.id] = it.qty;
+		return m;
+	}, [cart]);
 
 	const [slideIndex, setSlideIndex] = useState(0);
 	const [activeCat, setActiveCat] = useState(null);
@@ -51,10 +57,6 @@ export default function HomeScreen() {
 	const slideRef = useRef(null);
 	const indexRef = useRef(0);
 	const cardWidth = width - 24;
-
-	// const storeProduct = useSelector((state) => state.products);
-
-	// console.log('storeProduct', storeProduct);
 
 	useEffect(() => {
 		indexRef.current = slideIndex;
@@ -79,10 +81,9 @@ export default function HomeScreen() {
 	const categoryColumns = useMemo(() => chunk3(CATEGORIES), []);
 
 	// ---- actions ----
-	const handleAddToCart = (item) => {
-		// item should at least have: { id, name, price, img, ... }
-		dispatch(addToCart(item));
-	};
+	const handleAddToCart = (item) => dispatch(addToCart(item));
+	const handleInc = (id) => dispatch(increaseQty(id));
+	const handleDec = (id) => dispatch(decreaseQty(id));
 
 	// polished category tile
 	const CategoryTile = ({item, active, onPress}) => (
@@ -210,7 +211,6 @@ export default function HomeScreen() {
 							keyExtractor={(_, idx) => `col-${idx}`}
 							horizontal
 							showsHorizontalScrollIndicator={false}
-							// smoother horizontal scroll behavior
 							decelerationRate="fast"
 							disableIntervalMomentum
 							snapToAlignment="start"
@@ -232,16 +232,23 @@ export default function HomeScreen() {
 						/>
 					</View>
 
-					{/* product strips with wired add + sheet */}
+					{/* product strips with wired add + qty control */}
 					<ProductStrip
 						title="Hot & Fast Movers"
 						data={HOT_FAST_MOVERS}
 						onViewAll={() => goViewAll('Hot & Fast Movers')}
 						productCardProps={{
 							onAdd: handleAddToCart,
+							onChangeQty: (next, item) => {
+								const current = cartMap[item.id] || 0;
+								if (next > current) handleInc(item.id);
+								else if (next < current) handleDec(item.id);
+							},
+							qty: (id) => cartMap[id] || 0,
 							onPressCard: (it) => router.push(`/products/${encodeURIComponent(it.id)}`),
 						}}
 					/>
+
 					<ProductStrip
 						title="Trending This Week"
 						emoji="🔥"
@@ -249,15 +256,28 @@ export default function HomeScreen() {
 						onViewAll={() => goViewAll('Trending This Week')}
 						productCardProps={{
 							onAdd: handleAddToCart,
+							onChangeQty: (next, item) => {
+								const current = cartMap[item.id] || 0;
+								if (next > current) handleInc(item.id);
+								else if (next < current) handleDec(item.id);
+							},
+							qty: (id) => cartMap[id] || 0,
 							onPressCard: (it) => router.push(`/product/${encodeURIComponent(it.id)}`),
 						}}
 					/>
+
 					<ProductStrip
 						title="Recommended for you"
 						data={RECOMMENDED}
 						onViewAll={() => goViewAll('Recommended for you')}
 						productCardProps={{
 							onAdd: handleAddToCart,
+							onChangeQty: (next, item) => {
+								const current = cartMap[item.id] || 0;
+								if (next > current) handleInc(item.id);
+								else if (next < current) handleDec(item.id);
+							},
+							qty: (id) => cartMap[id] || 0,
 							onPressCard: (it) => router.push(`/product/${encodeURIComponent(it.id)}`),
 						}}
 					/>
@@ -269,7 +289,7 @@ export default function HomeScreen() {
 
 			{/* cart bar (redux totals) */}
 			{totalQty > 0 ? (
-				<CartBar items={cartItems} count={totalQty} total={totalAmount} onPress={() => router.push('/cart')} />
+				<CartBar items={cartLen} count={totalQty} total={totalAmount} onPress={() => router.push('/cart')} />
 			) : null}
 		</SafeAreaView>
 	);
@@ -289,7 +309,7 @@ const styles = StyleSheet.create({
 	dotsRow: {flexDirection: 'row', alignSelf: 'center', marginBottom: 14},
 	dot: {width: 8, height: 8, borderRadius: 999, marginHorizontal: 4},
 
-	// brand tiles (compact)
+	// brand tiles
 	brandCardGrad: {
 		width: 70,
 		height: 70,
@@ -334,7 +354,7 @@ const styles = StyleSheet.create({
 	tabPillInactive: {backgroundColor: COLORS.gray100, borderWidth: 0, borderColor: 'transparent'},
 	tabLabel: {marginLeft: 8, fontWeight: '800'},
 
-	// favourite categories container (tightened padding/spacing)
+	// favourite categories
 	favCategories: {
 		backgroundColor: '#EAF6FF',
 		borderRadius: 16,
@@ -344,23 +364,21 @@ const styles = StyleSheet.create({
 	},
 	favHeader: {
 		textAlign: 'center',
-		fontSize: 16, // ↓ from 18
+		fontSize: 16,
 		fontWeight: '800',
-		marginBottom: 8, // ↓ from 10
+		marginBottom: 8,
 		color: COLORS.dark,
 		letterSpacing: 0.4,
 	},
-
-	// category tile (more compact)
 	catTile: {
-		width: 130, // ↓ from 150
-		height: 54, // ↓ from 60
-		borderRadius: 12, // ↓ from 14
+		width: 130,
+		height: 54,
+		borderRadius: 12,
 		backgroundColor: COLORS.white,
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingHorizontal: 10,
-		marginBottom: 8, // ↓ from 10
+		marginBottom: 8,
 		borderWidth: 1,
 		borderColor: COLORS.gray200,
 		shadowColor: '#000',
@@ -370,17 +388,12 @@ const styles = StyleSheet.create({
 		elevation: 1,
 	},
 	catTileActive: {borderColor: COLORS.primary},
-
 	catThumb: {
-		width: 34, // ↓ from 40
-		height: 34, // ↓ from 40
-		borderRadius: 8, // ↓ from 10
+		width: 34,
+		height: 34,
+		borderRadius: 8,
 		marginRight: 10,
 		backgroundColor: COLORS.gray100,
 	},
-	catLabel: {
-		fontSize: 12, // ↓ from 16
-		fontWeight: '700',
-		color: COLORS.dark,
-	},
+	catLabel: {fontSize: 12, fontWeight: '700', color: COLORS.dark},
 });

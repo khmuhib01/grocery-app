@@ -1,23 +1,17 @@
 // components/home/ProductStrip.jsx
 import {Ionicons} from '@expo/vector-icons';
-import {Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {COLORS} from '../../constants/Colors';
 import ProductCard from './ProductCard';
-
-const {width: SCREEN_W} = Dimensions.get('window');
 
 export default function ProductStrip({
 	title,
 	emoji,
 	data = [],
 	onViewAll,
-	productCardProps = {},
-	columns = 3, // show 3 cards per viewport
-	gap = 10,
-	sidePadding = 0,
-	snap = false, // set true if you want snapping per card
+	productCardProps = {}, // { onAdd, onChangeQty, qty, onPressCard, ... }
 }) {
-	const itemW = Math.floor((SCREEN_W - sidePadding * 2 - gap * (columns - 1)) / columns);
+	const {qty: qtyGetter, ...restProps} = productCardProps;
 
 	return (
 		<View style={styles.wrap}>
@@ -38,20 +32,15 @@ export default function ProductStrip({
 				horizontal
 				keyExtractor={(it) => it.id}
 				showsHorizontalScrollIndicator={false}
-				ItemSeparatorComponent={() => <View style={{width: gap}} />}
-				contentContainerStyle={{paddingHorizontal: sidePadding, paddingVertical: 2}}
-				decelerationRate="fast"
-				snapToInterval={snap ? itemW + gap : undefined}
-				snapToAlignment={snap ? 'start' : undefined}
-				disableIntervalMomentum={snap || undefined}
 				renderItem={({item}) => (
 					<ProductCard
 						item={item}
-						width={itemW}
-						variant="grid" // compact spacing in the card
-						{...productCardProps}
+						width={180}
+						qty={typeof qtyGetter === 'function' ? qtyGetter(item.id) : qtyGetter}
+						{...restProps}
 					/>
 				)}
+				contentContainerStyle={{paddingVertical: 2}}
 			/>
 		</View>
 	);

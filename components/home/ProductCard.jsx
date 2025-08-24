@@ -6,12 +6,12 @@ import {COLORS} from '../../constants/Colors';
 
 export default function ProductCard({
 	item,
-	qty: controlledQty,
-	onChangeQty,
-	onAdd,
+	qty: controlledQty, // number (from Redux) OR undefined (uncontrolled)
+	onChangeQty, // (nextQty, item) => void
+	onAdd, // (item) => void
 	width = 160,
-	onPressCard, // ← navigate only when image or title pressed
-	variant = 'list', // 'list' | 'grid'  (kept for your updated design)
+	onPressCard, // (item) => void
+	variant = 'list',
 }) {
 	const isControlled = typeof controlledQty === 'number';
 	const [qtyUncontrolled, setQtyUncontrolled] = useState(0);
@@ -19,7 +19,7 @@ export default function ProductCard({
 
 	const setQty = (next) => {
 		if (!isControlled) setQtyUncontrolled(next);
-		onChangeQty?.(next);
+		onChangeQty?.(next, item); // pass item so parent decides inc/dec
 	};
 
 	const handleAdd = () => {
@@ -30,17 +30,7 @@ export default function ProductCard({
 	const isGrid = variant === 'grid';
 
 	return (
-		<View
-			style={[
-				styles.card,
-				{
-					width,
-					marginRight: isGrid ? 0 : 14,
-					padding: isGrid ? 10 : 12,
-				},
-			]}
-			// ⛔️ no onPress on the whole card (popup removed)
-		>
+		<View style={[styles.card, {width, marginRight: isGrid ? 0 : 14, padding: isGrid ? 10 : 12}]}>
 			{item.off ? (
 				<View style={styles.offBadge}>
 					<Ionicons name="pricetag-outline" size={12} color={COLORS.primary} />
@@ -49,12 +39,12 @@ export default function ProductCard({
 				</View>
 			) : null}
 
-			{/* ✅ only image opens details */}
+			{/* Only image navigates */}
 			<Pressable onPress={() => onPressCard?.(item)} style={[styles.imgWrap, {height: isGrid ? 100 : 120}]}>
 				<Image source={{uri: item.img}} style={styles.img} resizeMode="cover" />
 			</Pressable>
 
-			{/* ✅ only title opens details */}
+			{/* Only title navigates */}
 			<Pressable onPress={() => onPressCard?.(item)}>
 				<Text style={[styles.name, {fontSize: isGrid ? 13 : 14}]} numberOfLines={2}>
 					{item.name}
@@ -82,7 +72,7 @@ export default function ProductCard({
 				) : (
 					<TouchableOpacity
 						onPress={(e) => {
-							e.stopPropagation?.(); // make sure it never bubbles
+							e.stopPropagation?.();
 							handleAdd();
 						}}
 						style={[styles.addOutline, {height: isGrid ? 32 : 34, marginTop: isGrid ? 8 : 10}]}
