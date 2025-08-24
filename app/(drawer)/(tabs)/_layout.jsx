@@ -2,13 +2,8 @@
 import {Ionicons} from '@expo/vector-icons';
 import {Tabs} from 'expo-router';
 import React from 'react';
-import {useSelector} from 'react-redux';
-import {COLORS} from '../../../constants/Colors';
 
 export default function TabsLayout() {
-	// count items array length
-	const cartLength = useSelector((s) => s.cart?.items?.length || 0);
-
 	return (
 		<Tabs screenOptions={{headerShown: false}}>
 			<Tabs.Screen
@@ -30,9 +25,6 @@ export default function TabsLayout() {
 				options={{
 					title: 'Cart',
 					tabBarIcon: ({color, size}) => <Ionicons name="cart-outline" color={color} size={size} />,
-					// just show the number of different items in cart
-					tabBarBadge: cartLength > 0 ? String(cartLength) : undefined,
-					tabBarBadgeStyle: {backgroundColor: COLORS.primary, color: '#fff'},
 				}}
 			/>
 			<Tabs.Screen
@@ -42,6 +34,9 @@ export default function TabsLayout() {
 					tabBarIcon: ({color, size}) => <Ionicons name="file-tray-full-outline" color={color} size={size} />,
 				}}
 			/>
+			{/* 👇 Hide the dynamic detail route from being a tab */}
+			<Tabs.Screen name="orders/[id]" options={{href: null}} />
+
 			<Tabs.Screen
 				name="profile/index"
 				options={{
