@@ -1,8 +1,10 @@
 import {Ionicons} from '@expo/vector-icons';
-import {useEffect, useMemo, useState} from 'react';
-import {Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import {Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {COLORS} from '../../constants/Colors';
+
 const {width} = Dimensions.get('window');
+const CARD_W = width - 24; // matches your slide width
 
 const DEMO_DEALS = [
 	{
@@ -13,6 +15,15 @@ const DEMO_DEALS = [
 		mrp: 907,
 		price: 889,
 		off: 18,
+	},
+	{
+		id: 'd2',
+		name: 'Teer Sugar 1kg',
+		unit: 'EACH',
+		img: 'https://picsum.photos/seed/sugar/500/500',
+		mrp: 120,
+		price: 110,
+		off: 10,
 	},
 ];
 
@@ -37,39 +48,20 @@ const Pill = ({value, label}) => (
 	</View>
 );
 
-function Card({item, hrs, mins, secs}) {
+function ProductSlide({item}) {
 	return (
-		<View style={styles.card}>
-			{/* header */}
-			<View style={styles.headerRow}>
-				<Text style={styles.headerTitle}>Deals of the Week</Text>
-				<View style={styles.timerRow}>
-					<Pill value={hrs} label="Hr" />
-					<Pill value={mins} label="Min" />
-					<Pill value={secs} label="Sec" />
-				</View>
-			</View>
-
-			{/* body */}
-			{item.off ? (
-				<View style={styles.offBadge}>
-					<Text style={styles.offText}>৳{item.off} OFF</Text>
-				</View>
-			) : null}
-
-			<View style={styles.bodyRow}>
+		<View style={{width: CARD_W, padding: 10}}>
+			<View style={styles.productRow}>
 				<Image source={{uri: item.img}} style={styles.productImg} resizeMode="contain" />
 				<View style={styles.infoCol}>
 					<Text style={styles.name} numberOfLines={2}>
 						{item.name}
 					</Text>
 					<Text style={styles.unit}>{item.unit}</Text>
-
 					<View style={styles.priceRow}>
 						{item.mrp ? <Text style={styles.mrp}>৳{Number(item.mrp).toLocaleString()}</Text> : null}
 						<Text style={styles.price}>৳{Number(item.price).toLocaleString()}</Text>
 					</View>
-
 					<TouchableOpacity activeOpacity={0.9} onPress={() => {}} style={styles.addBtn}>
 						<Ionicons name="add" size={18} color="#111827" />
 						<Text style={styles.addTxt}>ADD</Text>
@@ -81,41 +73,80 @@ function Card({item, hrs, mins, secs}) {
 }
 
 export default function DealsOfWeek({deals = DEMO_DEALS, deadline}) {
-	// demo fallback: ~111h 31m 40s
+	// demo: ~111h 31m 40s
 	const target = useMemo(() => deadline ?? Date.now() + 111 * 3600 * 1000 + 31 * 60 * 1000 + 40 * 1000, [deadline]);
 	const {hrs, mins, secs} = useCountdown(target);
+	const [index, setIndex] = useState(0);
+	const scrollRef = useRef(null);
+	const onScroll = (e) => {
+		const x = e.nativeEvent.contentOffset.x;
+		const i = Math.round(x / CARD_W);
+		if (i !== index) setIndex(i);
+	};
 
 	return (
 		<View style={{marginTop: 8, marginBottom: 14}}>
-			<FlatList
-				data={deals}
-				keyExtractor={(d) => d.id}
-				horizontal
-				showsHorizontalScrollIndicator={false}
-				renderItem={({item}) => <Card item={item} hrs={hrs} mins={mins} secs={secs} />}
-				contentContainerStyle={{paddingVertical: 4}}
-			/>
+			{/* single card (section NOT scrollable) */}
+			<View style={styles.card}>
+				{/* header */}
+				<View style={styles.headerRow}>
+					<View>
+						<Text style={styles.headerTitle}>Deals of the Week</Text>
+						{/* dots BELOW the card */}
+						{deals.length > 1 ? (
+							<View style={styles.dotsRow}>
+								{deals.map((_, i) => (
+									<View
+										key={`dot-${i}`}
+										style={[styles.dot, {backgroundColor: i === index ? COLORS.primary : COLORS.gray300}]}
+									/>
+								))}
+							</View>
+						) : null}
+					</View>
+
+					<View style={styles.timerRow}>
+						<Pill value={hrs} label="Hr" />
+						<Pill value={mins} label="Min" />
+						<Pill value={secs} label="Sec" />
+					</View>
+				</View>
+
+				{/* body with INNER horizontal slider */}
+				<View style={styles.bodyRow}>
+					<ScrollView
+						ref={scrollRef}
+						horizontal
+						pagingEnabled
+						showsHorizontalScrollIndicator={false}
+						onScroll={onScroll}
+						scrollEventThrottle={16}
+						snapToInterval={CARD_W}
+						decelerationRate="fast"
+					>
+						{deals.map((d) => (
+							<ProductSlide key={d.id} item={d} />
+						))}
+					</ScrollView>
+				</View>
+			</View>
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
 	card: {
-		width: width - 24,
+		width: CARD_W,
 		backgroundColor: COLORS.white,
 		borderRadius: 14,
-		marginRight: 12,
 		overflow: 'hidden',
-		shadowColor: COLORS.black,
-		shadowOpacity: 0.06,
-		shadowOffset: {width: 0, height: 4},
-		shadowRadius: 8,
-		elevation: 3,
-		borderWidth: 1,
-		borderColor: COLORS.gray200,
+		borderWidth: 3,
+		borderColor: COLORS.success,
+		alignSelf: 'center',
 	},
+
 	headerRow: {
-		backgroundColor: '#facc15',
+		backgroundColor: COLORS.success,
 		paddingHorizontal: 12,
 		paddingVertical: 10,
 		flexDirection: 'row',
@@ -135,18 +166,17 @@ const styles = StyleSheet.create({
 	},
 	timerVal: {fontWeight: '900', fontSize: 16, color: '#111827'},
 	timerLbl: {fontSize: 11, color: '#111827'},
-	offBadge: {
-		position: 'absolute',
-		left: 10,
-		top: 44,
-		backgroundColor: COLORS.danger,
-		paddingVertical: 4,
-		paddingHorizontal: 6,
-		borderRadius: 6,
-		zIndex: 2,
+
+	bodyRow: {flexDirection: 'row'},
+	productRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		borderColor: COLORS.gray100,
+		borderWidth: 1,
+		borderRadius: 10,
+		width: '100%',
+		padding: 10,
 	},
-	offText: {color: COLORS.white, fontWeight: '800', fontSize: 11},
-	bodyRow: {flexDirection: 'row', padding: 12},
 	productImg: {width: 90, height: 90, borderRadius: 8, backgroundColor: COLORS.gray100},
 	infoCol: {flex: 1, marginLeft: 12, justifyContent: 'center'},
 	name: {fontSize: 15, fontWeight: '800', color: '#111827'},
@@ -167,4 +197,8 @@ const styles = StyleSheet.create({
 		backgroundColor: COLORS.white,
 	},
 	addTxt: {marginLeft: 6, fontWeight: '800', color: '#111827'},
+
+	// dots below the section
+	dotsRow: {flexDirection: 'row', marginTop: 8},
+	dot: {width: 8, height: 8, borderRadius: 999, marginHorizontal: 4},
 });

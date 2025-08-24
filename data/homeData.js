@@ -4,6 +4,7 @@
 export const tabs = [
 	{id: 'grocery', label: 'Grocery', icon: 'basket'},
 	{id: 'pharmacy', label: 'Pharmacy', icon: 'medkit'},
+	{id: 'clothes', label: 'Clothes', icon: 'shirt'},
 	{id: 'cookups', label: 'Cookups', icon: 'fast-food'},
 ];
 

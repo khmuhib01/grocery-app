@@ -1,6 +1,8 @@
+// app/(drawer)/(tabs)/home/index.jsx
 import {Ionicons} from '@expo/vector-icons';
+import {LinearGradient} from 'expo-linear-gradient';
 import {router} from 'expo-router';
-import {useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import HomeHeader from '../../../../components/home/HomeHeader';
@@ -31,7 +33,22 @@ export default function HomeScreen({navigation}) {
 	const [slideIndex, setSlideIndex] = useState(0);
 	const [activeCat, setActiveCat] = useState(null);
 	const [activeTab, setActiveTab] = useState('grocery');
+
 	const slideRef = useRef(null);
+	const indexRef = useRef(0);
+	const cardWidth = width - 24;
+
+	useEffect(() => {
+		indexRef.current = slideIndex;
+	}, [slideIndex]);
+
+	useEffect(() => {
+		const id = setInterval(() => {
+			const next = (indexRef.current + 1) % SLIDES.length;
+			slideRef.current?.scrollTo({x: next * cardWidth, animated: true});
+		}, 3500);
+		return () => clearInterval(id);
+	}, [cardWidth]);
 
 	const onSlideScroll = (e) => {
 		const x = e.nativeEvent.contentOffset.x;
@@ -45,7 +62,6 @@ export default function HomeScreen({navigation}) {
 	return (
 		<SafeAreaView style={{flex: 1}}>
 			<ScrollView style={{flex: 1}} contentContainerStyle={{paddingBottom: 80}} stickyHeaderIndices={[1]}>
-				{/* 0: header without search */}
 				<HomeHeader
 					showSearch={false}
 					etaText="Delivery in 59 minutes"
@@ -54,18 +70,11 @@ export default function HomeScreen({navigation}) {
 					onPressSearch={() => router.push('/search')}
 				/>
 
-				{/* 1: sticky search */}
 				<StickySearch />
 
-				{/* 2+: page content */}
-				<ScrollView style={{flex: 1}} contentContainerStyle={{padding: 12, paddingBottom: 80}}>
-					{/* top tabs */}
-					<ScrollView
-						horizontal
-						showsHorizontalScrollIndicator={false}
-						style={{marginBottom: 12}}
-						contentContainerStyle={{paddingVertical: 2}}
-					>
+				<ScrollView style={{flex: 1}} contentContainerStyle={{padding: 12}}>
+					{/* Tabs */}
+					<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingVertical: 2}}>
 						{tabs.map((t) => {
 							const active = t.id === activeTab;
 							return (
@@ -82,7 +91,9 @@ export default function HomeScreen({navigation}) {
 						})}
 					</ScrollView>
 
-					{/* slider */}
+					<DealsOfWeek />
+
+					{/* Hero slider */}
 					<ScrollView
 						ref={slideRef}
 						horizontal
@@ -99,39 +110,47 @@ export default function HomeScreen({navigation}) {
 						))}
 					</ScrollView>
 
-					{/* dots */}
-					<View style={styles.dotsRow}>
-						{SLIDES.map((_, i) => (
-							<View
-								key={`dot-${i}`}
-								style={[styles.dot, {backgroundColor: i === slideIndex ? COLORS.primary : COLORS.gray300}]}
-							/>
-						))}
-					</View>
-
-					{/* ✅ DEALS OF THE WEEK */}
-					<DealsOfWeek />
-
-					{/* brands */}
+					{/* Brands */}
 					<FlatList
 						data={BRANDS}
 						horizontal
 						showsHorizontalScrollIndicator={false}
 						keyExtractor={(b) => b.id}
 						contentContainerStyle={{paddingVertical: 6}}
-						renderItem={({item}) => (
-							<TouchableOpacity
-								onPress={() => {}}
-								style={[styles.brandCard, {backgroundColor: item.color}]}
-								activeOpacity={0.9}
-							>
-								<Text style={styles.brandText}>{item.name}</Text>
-							</TouchableOpacity>
-						)}
+						renderItem={({item}) => {
+							const preset = {
+								'All Offers': {colors: ['#9AE6B4', '#B7F3D9'], icon: 'gift-outline'},
+								Unilever: {colors: ['#BFD3FF', '#E6EAFE'], textIcon: 'U'},
+								'Big Save': {colors: ['#E7C1FF', '#FAD0E5'], icon: 'basket-outline'},
+								'All Brands': {colors: ['#FEC6A1', '#FFD7B8'], icon: 'bookmark-outline'},
+							}[item.name] || {colors: [item.color || '#E5E7EB', '#F5F6F7'], icon: 'albums-outline'};
+
+							return (
+								<TouchableOpacity onPress={() => {}} activeOpacity={0.9} style={{marginRight: 10}}>
+									<LinearGradient
+										colors={preset.colors}
+										start={{x: 0, y: 0}}
+										end={{x: 1, y: 1}}
+										style={styles.brandCardGrad}
+									>
+										<View style={styles.brandIconBubble}>
+											{'textIcon' in preset ? (
+												<Text style={styles.brandTextIcon}>{preset.textIcon}</Text>
+											) : (
+												<Ionicons name={preset.icon} size={22} color="#fff" />
+											)}
+										</View>
+										<Text style={styles.brandGradLabel} numberOfLines={1}>
+											{item.name}
+										</Text>
+									</LinearGradient>
+								</TouchableOpacity>
+							);
+						}}
 						style={{marginBottom: 12}}
 					/>
 
-					{/* favourite categories */}
+					{/* Favourite categories */}
 					<Text style={{marginBottom: 8, textAlign: 'center', fontSize: 18, fontWeight: '800'}}>
 						FAVOURITE CATEGORIES
 					</Text>
@@ -152,7 +171,7 @@ export default function HomeScreen({navigation}) {
 						style={{marginBottom: 12}}
 					/>
 
-					{/* product strips */}
+					{/* Products */}
 					<ProductStrip
 						title="Hot & Fast Movers"
 						data={HOT_FAST_MOVERS}
@@ -170,7 +189,6 @@ export default function HomeScreen({navigation}) {
 						onViewAll={() => goViewAll('Recommended for you')}
 					/>
 
-					{/* offers & help */}
 					<OffersSection offers={OFFERS} onViewAll={() => goViewAll('Offers')} />
 					<HelpSection />
 				</ScrollView>
@@ -180,7 +198,6 @@ export default function HomeScreen({navigation}) {
 }
 
 const styles = StyleSheet.create({
-	// slider
 	slideCard: {
 		width: width - 24,
 		height: 140,
@@ -193,19 +210,31 @@ const styles = StyleSheet.create({
 	dotsRow: {flexDirection: 'row', alignSelf: 'center', marginBottom: 14},
 	dot: {width: 8, height: 8, borderRadius: 999, marginHorizontal: 4},
 
-	// brands
-	brandCard: {
-		paddingVertical: 14,
-		paddingHorizontal: 16,
-		borderRadius: 14,
-		marginRight: 10,
-		minWidth: 120,
+	brandCardGrad: {
+		width: 120,
+		height: 100,
+		borderRadius: 18,
+		padding: 12,
 		alignItems: 'center',
 		justifyContent: 'center',
+		shadowColor: '#000',
+		shadowOpacity: 0.08,
+		shadowOffset: {width: 0, height: 6},
+		shadowRadius: 10,
+		elevation: 3,
 	},
-	brandText: {fontWeight: '800', color: COLORS.dark},
+	brandIconBubble: {
+		width: 42,
+		height: 42,
+		borderRadius: 12,
+		backgroundColor: 'rgba(255,255,255,0.35)',
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginBottom: 8,
+	},
+	brandTextIcon: {fontWeight: '900', color: '#fff', fontSize: 20},
+	brandGradLabel: {fontWeight: '800', color: COLORS.dark, opacity: 0.9},
 
-	// tabs
 	tabPill: {
 		flexDirection: 'row',
 		alignItems: 'center',

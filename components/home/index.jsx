@@ -6,3 +6,7 @@ export { default as ProductCard } from './ProductCard';
 export { default as ProductStrip } from './ProductStrip';
 export { default as StickySearch } from './StickySearch';
 
+// components/home/index.js
+export { default as BrandChip } from './BrandChip';
+export { default as BrandsRow } from './BrandsRow';
+// (keep your other exports here… DealsOfWeek, StickySearch, etc.)
