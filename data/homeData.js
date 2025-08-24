@@ -140,3 +140,33 @@ export const chunk3 = (arr) => {
 	for (let i = 0; i < arr.length; i += 3) out.push(arr.slice(i, i + 3));
 	return out;
 };
+
+export const DEALS = [
+	{
+		id: 'd1',
+		name: 'Rupchanda Soyabean Oil Pet 5ltr',
+		unit: 'EACH',
+		img: 'https://picsum.photos/seed/oil5l/500/500',
+		mrp: 907,
+		price: 889,
+		off: 18, // badge on top-left
+	},
+	{
+		id: 'd2',
+		name: 'Rupchanda Soyabean Oil Pet 5ltr',
+		unit: 'EACH',
+		img: 'https://picsum.photos/seed/oil5l/500/500',
+		mrp: 907,
+		price: 889,
+		off: 18, // badge on top-left
+	},
+	{
+		id: 'd3',
+		name: 'Rupchanda Soyabean Oil Pet 5ltr',
+		unit: 'EACH',
+		img: 'https://picsum.photos/seed/oil5l/500/500',
+		mrp: 907,
+		price: 889,
+		off: 18, // badge on top-left
+	},
+];
