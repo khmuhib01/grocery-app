@@ -43,6 +43,7 @@ export default function ProductCard({
 		>
 			{item.off ? (
 				<View style={styles.offBadge}>
+					<Ionicons name="pricetag-outline" size={12} color={COLORS.primary} />
 					<Text style={styles.offTop}>৳{item.off}</Text>
 					<Text style={styles.offBottom}>OFF</Text>
 				</View>
@@ -106,11 +107,13 @@ const styles = StyleSheet.create({
 	},
 	offBadge: {
 		position: 'absolute',
-		left: 8,
-		top: 8,
-		backgroundColor: COLORS.danger,
+		left: 10,
+		top: 10,
+		backgroundColor: COLORS.brandGreenTint,
 		width: 'auto',
-		borderRadius: 6,
+		borderRadius: 4,
+		borderColor: COLORS.primary,
+		borderWidth: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
 		zIndex: 2,
@@ -118,9 +121,11 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 6,
 		paddingVertical: 2,
 		gap: 4,
+		transform: [{scale: 0.8}],
+		transformOrigin: 'left top',
 	},
-	offTop: {color: '#fff', fontSize: 10, fontWeight: '900'},
-	offBottom: {color: '#fff', fontSize: 10, fontWeight: '900'},
+	offTop: {color: COLORS.primary, fontSize: 10, fontWeight: '900'},
+	offBottom: {color: COLORS.primary, fontSize: 10, fontWeight: '900'},
 	imgWrap: {
 		backgroundColor: '#f6fff4',
 		alignItems: 'center',
