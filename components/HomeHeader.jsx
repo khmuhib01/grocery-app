@@ -1,4 +1,6 @@
+// components/HomeHeader.jsx
 import {Ionicons} from '@expo/vector-icons';
+import {useNavigation} from '@react-navigation/native';
 import {router} from 'expo-router';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {COLORS} from './../constants/Colors';
@@ -10,15 +12,17 @@ export default function HomeHeader({
 		router.push('/search');
 	},
 	onPressSearch = () => {
-		console.log('search');
+		router.push('/search');
 	},
 	showSearch = true, // controls whether header shows its own search
 }) {
+	const navigation = useNavigation();
+
 	return (
 		<View style={styles.headerWrap}>
 			{/* top bar: menu • logo • settings */}
 			<View style={styles.headerTop}>
-				<TouchableOpacity style={styles.circleBtn} onPress={() => console.log('menu')}>
+				<TouchableOpacity style={styles.circleBtn} onPress={() => navigation?.openDrawer?.()} activeOpacity={0.8}>
 					<Ionicons name="menu" size={22} color={COLORS.dark} />
 				</TouchableOpacity>
 
@@ -28,7 +32,7 @@ export default function HomeHeader({
 					<Ionicons name="cart" size={16} color={COLORS.dark} style={styles.ml4} />
 				</View>
 
-				<TouchableOpacity style={styles.circleBtn} onPress={() => console.log('settings')}>
+				<TouchableOpacity style={styles.circleBtn} onPress={() => router.push('/profile')} activeOpacity={0.8}>
 					<Ionicons name="settings-outline" size={20} color={COLORS.dark} />
 				</TouchableOpacity>
 			</View>
@@ -46,7 +50,7 @@ export default function HomeHeader({
 				</View>
 			</TouchableOpacity>
 
-			{/* header search (only if you want it) */}
+			{/* header search (use showSearch=false if you have sticky search outside) */}
 			{showSearch && (
 				<TouchableOpacity style={styles.searchBar} onPress={onPressSearch} activeOpacity={0.9}>
 					<Ionicons name="search" size={18} color={COLORS.white} />
@@ -106,7 +110,7 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: 'rgba(255,255,255,0.25)',
 	},
-	searchPlaceholder: {marginLeft: 8, color: COLORS.white, fontWeight: '600'}, // ✅ white text
+	searchPlaceholder: {marginLeft: 8, color: COLORS.white, fontWeight: '600'},
 	ml4: {marginLeft: 4},
 	ml10: {marginLeft: 10},
 });
