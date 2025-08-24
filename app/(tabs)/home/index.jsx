@@ -1,15 +1,20 @@
-import { StyleSheet, Text, View } from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import HomeHeader from '../../../components/HomeHeader';
 
 export default function HomeScreen() {
 	return (
-		<View style={styles.wrap}>
-			<Text style={styles.title}>Home</Text>
-			<Text>Welcome to Grocery App 👋</Text>
-		</View>
+		<SafeAreaView style={styles.safeArea}>
+			<ScrollView>
+				<HomeHeader
+					etaText="Delivery in 59 minutes"
+					area="Kachukhet"
+					onPressLocation={() => console.log('change location')}
+					onPressSearch={() => navigation.navigate('Search')}
+				/>
+			</ScrollView>
+		</SafeAreaView>
 	);
 }
 
-const styles = StyleSheet.create({
-	wrap: {flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24},
-	title: {fontSize: 22, fontWeight: '700', marginBottom: 8},
-});
+const styles = StyleSheet.create({});

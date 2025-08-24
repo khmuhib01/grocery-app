@@ -1,41 +1,36 @@
-// app/index.jsx
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {router} from 'expo-router';
-import {useEffect, useState} from 'react';
-import {ActivityIndicator, Text, View} from 'react-native';
-import {STORAGE_KEYS} from '../config';
-import {Colors} from '../constants/Colors';
+import {useRouter} from 'expo-router';
+import {useEffect} from 'react';
+import {Image, StyleSheet, View} from 'react-native';
+import {COLORS} from '../constants/Colors'; // ✅ global colors
 
-const InitialGate = () => {
-	const [ready, setReady] = useState(false);
-	const [err, setErr] = useState('');
+export default function Home() {
+	const router = useRouter();
 
 	useEffect(() => {
-		(async () => {
-			try {
-				const [starter, token] = await Promise.all([
-					AsyncStorage.getItem(STORAGE_KEYS.STARTER_FLAG),
-					AsyncStorage.getItem(STORAGE_KEYS.TOKEN),
-				]);
+		const timer = setTimeout(() => {
+			router.replace('/(tabs)/home');
+		}, 2000);
 
-				if (!starter) router.replace('/onboarding');
-				else if (token) router.replace('/(tabs)');
-				else router.replace('/auth/login');
-			} catch {
-				setErr('Failed to read local storage.');
-			} finally {
-				setReady(true);
-			}
-		})();
-	}, []);
+		return () => clearTimeout(timer);
+	}, [router]);
 
-	const C = Colors.light;
 	return (
-		<View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: C.background}}>
-			<ActivityIndicator size="large" color={C.tint} />
-			<Text style={{marginTop: 10, color: C.text}}>{err || 'Preparing your app…'}</Text>
+		<View style={styles.container}>
+			<Image source={require('../assets/images/splash-icon.png')} style={styles.image} />
 		</View>
 	);
-};
+}
 
-export default InitialGate;
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		backgroundColor: COLORS.danger, // 🔴 red from global
+	},
+	image: {
+		width: 450,
+		height: 200,
+		resizeMode: 'cover',
+	},
+});
