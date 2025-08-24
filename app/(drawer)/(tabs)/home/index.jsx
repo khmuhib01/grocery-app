@@ -3,7 +3,7 @@ import {router} from 'expo-router';
 import {useMemo, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import HomeHeader from '../../../../components/HomeHeader';
+import HomeHeader from '../../../../components/home/HomeHeader';
 import {COLORS} from '../../../../constants/Colors';
 import {
 	BRANDS,

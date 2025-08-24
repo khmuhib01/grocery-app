@@ -3,7 +3,7 @@ import {Ionicons} from '@expo/vector-icons';
 import {useNavigation} from '@react-navigation/native';
 import {router} from 'expo-router';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {COLORS} from './../constants/Colors';
+import {COLORS} from '../../constants/Colors';
 
 export default function HomeHeader({
 	etaText = 'Delivery in 59 minutes',
