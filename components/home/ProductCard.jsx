@@ -1,75 +1,151 @@
+// components/product/ProductCard.jsx
 import {Ionicons} from '@expo/vector-icons';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {useState} from 'react';
+import {Image, Pressable, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {COLORS} from '../../constants/Colors';
 
-export default function ProductCard({item, onAdd}) {
+export default function ProductCard({
+	item,
+	qty: controlledQty, // optional (controlled)
+	onChangeQty, // optional (qty => void)
+	onAdd, // optional (item => void)
+	width = 160,
+	onPressCard, // optional (item => void)
+}) {
+	const isControlled = typeof controlledQty === 'number';
+	const [qtyUncontrolled, setQtyUncontrolled] = useState(0);
+	const qty = isControlled ? controlledQty : qtyUncontrolled;
+
+	const setQty = (next) => {
+		if (!isControlled) setQtyUncontrolled(next);
+		onChangeQty?.(next);
+	};
+
+	const handleAdd = () => {
+		setQty(1);
+		onAdd?.(item); // ← bubbles up to HomeScreen → increments cart
+	};
+
 	return (
-		<View style={styles.productCard}>
+		<Pressable style={[styles.card, {width}]} onPress={() => onPressCard?.(item)}>
 			{item.off ? (
 				<View style={styles.offBadge}>
-					<Text style={styles.offBadgeText}>-{item.off}%</Text>
+					<Text style={styles.offTop}>৳{item.off}</Text>
+					<Text style={styles.offBottom}>OFF</Text>
 				</View>
 			) : null}
-			<Image source={{uri: item.img}} style={styles.productImg} resizeMode="cover" />
-			<Text style={styles.unitText}>{item.unit}</Text>
-			<Text style={styles.productName} numberOfLines={2}>
+
+			<View style={styles.imgWrap}>
+				<Image source={{uri: item.img}} style={styles.img} resizeMode="cover" />
+			</View>
+
+			<Text style={styles.name} numberOfLines={2}>
 				{item.name}
 			</Text>
+			<Text style={styles.unit}>EACH</Text>
+
 			<View style={styles.priceRow}>
 				{item.mrp ? <Text style={styles.mrp}>৳{Number(item.mrp).toLocaleString()}</Text> : null}
 				<Text style={styles.price}>৳{Number(item.price).toLocaleString()}</Text>
 			</View>
-			<TouchableOpacity onPress={onAdd} style={styles.addBtn} activeOpacity={0.9}>
-				<Ionicons name="add" size={20} color="#fff" />
-			</TouchableOpacity>
-		</View>
+
+			<View style={styles.actionBottom}>
+				{qty > 0 ? (
+					<View style={styles.stepper}>
+						<TouchableOpacity onPress={() => setQty(Math.max(0, qty - 1))} style={styles.stepBtn} activeOpacity={0.8}>
+							<Ionicons name="remove" size={18} color="#fff" />
+						</TouchableOpacity>
+						<Text style={styles.qtyText}>{qty}</Text>
+						<TouchableOpacity onPress={() => setQty(qty + 1)} style={styles.stepBtn} activeOpacity={0.8}>
+							<Ionicons name="add" size={18} color="#fff" />
+						</TouchableOpacity>
+					</View>
+				) : (
+					<TouchableOpacity
+						onPress={(e) => {
+							e.stopPropagation?.();
+							handleAdd();
+						}}
+						style={styles.addOutline}
+						activeOpacity={0.9}
+					>
+						<Ionicons name="flash-outline" size={16} color={COLORS.primary} />
+						<Text style={styles.addOutlineTxt}>ADD</Text>
+					</TouchableOpacity>
+				)}
+			</View>
+		</Pressable>
 	);
 }
 
 const styles = StyleSheet.create({
-	productCard: {
-		width: 180,
-		borderRadius: 18,
+	card: {
+		borderRadius: 14,
 		backgroundColor: COLORS.white,
 		padding: 12,
 		marginRight: 14,
-		shadowColor: COLORS.black,
+		borderWidth: 1,
+		borderColor: '#E7EAF0',
+		shadowColor: '#000',
 		shadowOpacity: 0.05,
 		shadowOffset: {width: 0, height: 4},
 		shadowRadius: 8,
-		elevation: 3,
+		elevation: 1,
+		flexDirection: 'column',
 	},
 	offBadge: {
 		position: 'absolute',
-		left: 10,
-		top: 10,
+		left: 8,
+		top: 8,
 		backgroundColor: COLORS.danger,
-		paddingHorizontal: 10,
-		paddingVertical: 4,
-		borderRadius: 12,
-		zIndex: 1,
-	},
-	offBadgeText: {color: COLORS.white, fontWeight: '700', fontSize: 12},
-	productImg: {width: '100%', height: 120, borderRadius: 14, marginBottom: 10},
-	unitText: {color: COLORS.gray500, fontSize: 12, textAlign: 'center'},
-	productName: {fontWeight: '700', textAlign: 'center', marginTop: 4, fontSize: 14},
-	priceRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 6},
-	mrp: {color: COLORS.gray400, textDecorationLine: 'line-through', marginRight: 6, fontSize: 13},
-	price: {color: COLORS.primary, fontWeight: '800', fontSize: 15},
-	addBtn: {
-		position: 'absolute',
-		right: 12,
-		bottom: 12,
 		width: 36,
-		height: 36,
-		borderRadius: 18,
-		backgroundColor: COLORS.primary,
+		height: 40,
+		borderRadius: 6,
 		alignItems: 'center',
 		justifyContent: 'center',
-		shadowColor: COLORS.primary,
-		shadowOpacity: 0.3,
-		shadowOffset: {width: 0, height: 2},
-		shadowRadius: 4,
-		elevation: 4,
+		zIndex: 2,
 	},
+	offTop: {color: '#fff', fontSize: 10, fontWeight: '900', lineHeight: 12},
+	offBottom: {color: '#fff', fontSize: 10, fontWeight: '900', marginTop: 2},
+	imgWrap: {
+		height: 120,
+		backgroundColor: '#f6fff4',
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginBottom: 10,
+		borderRadius: 10,
+		overflow: 'hidden',
+	},
+	img: {width: '100%', height: '100%'},
+	unit: {color: COLORS.gray500, fontSize: 11, marginTop: 2, textTransform: 'uppercase'},
+	name: {fontWeight: '800', fontSize: 14, color: COLORS.dark},
+	priceRow: {flexDirection: 'row', alignItems: 'center', marginTop: 6},
+	mrp: {color: COLORS.gray400, textDecorationLine: 'line-through', marginRight: 8, fontSize: 13},
+	price: {color: COLORS.dark, fontWeight: '900', fontSize: 16},
+	actionBottom: {marginTop: 'auto'},
+	addOutline: {
+		marginTop: 10,
+		height: 34,
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: COLORS.primary,
+		backgroundColor: '#f6fff4',
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: 8,
+	},
+	addOutlineTxt: {color: COLORS.primary, fontWeight: '800'},
+	stepper: {
+		marginTop: 10,
+		height: 34,
+		borderRadius: 8,
+		backgroundColor: COLORS.primary,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		paddingHorizontal: 6,
+	},
+	stepBtn: {width: 32, height: 28, borderRadius: 6, alignItems: 'center', justifyContent: 'center'},
+	qtyText: {color: '#fff', fontWeight: '900', fontSize: 14},
 });

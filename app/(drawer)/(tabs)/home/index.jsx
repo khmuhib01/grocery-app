@@ -5,6 +5,7 @@ import {router} from 'expo-router';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+
 import HomeHeader from '../../../../components/home/HomeHeader';
 import {COLORS} from '../../../../constants/Colors';
 import {
@@ -18,14 +19,13 @@ import {
 	chunk3,
 	tabs,
 } from '../../../../data/homeData';
-import {
-	DealsOfWeek,
-	FavRow,
-	HelpSection,
-	OffersSection,
-	ProductStrip,
-	StickySearch,
-} from './../../../../components/home';
+
+// shared home components
+import {DealsOfWeek, HelpSection, OffersSection, ProductStrip, StickySearch} from './../../../../components/home';
+
+// product sheet & cart bar
+import CartBar from '../../../../components/cart/CartBar';
+import ProductSheet from '../../../../components/product/ProductSheet';
 
 const {width} = Dimensions.get('window');
 
@@ -34,6 +34,11 @@ export default function HomeScreen({navigation}) {
 	const [activeCat, setActiveCat] = useState(null);
 	const [activeTab, setActiveTab] = useState('grocery');
 
+	// sheet + cart state
+	const [sheetItem, setSheetItem] = useState(null);
+	const [cart, setCart] = useState({items: [], total: 0});
+
+	// hero slider refs
 	const slideRef = useRef(null);
 	const indexRef = useRef(0);
 	const cardWidth = width - 24;
@@ -42,6 +47,7 @@ export default function HomeScreen({navigation}) {
 		indexRef.current = slideIndex;
 	}, [slideIndex]);
 
+	// auto-advance hero slider
 	useEffect(() => {
 		const id = setInterval(() => {
 			const next = (indexRef.current + 1) % SLIDES.length;
@@ -59,9 +65,38 @@ export default function HomeScreen({navigation}) {
 	const goViewAll = (section) => navigation.navigate('Search', {section});
 	const categoryColumns = useMemo(() => chunk3(CATEGORIES), []);
 
+	// ---- actions ----
+	const handleAddToCart = (item) => {
+		// very simple local cart; replace with your store later
+		setCart((prev) => {
+			const nextItems = [...prev.items];
+			const idx = nextItems.findIndex((it) => it.id === item.id);
+			if (idx === -1) {
+				nextItems.push({...item, qty: 1});
+			} else {
+				nextItems[idx] = {...nextItems[idx], qty: nextItems[idx].qty + 1};
+			}
+			const total = nextItems.reduce((s, it) => s + it.price * it.qty, 0);
+			return {items: nextItems, total};
+		});
+	};
+
+	// polished category tile
+	const CategoryTile = ({item, active, onPress}) => (
+		<TouchableOpacity activeOpacity={0.9} onPress={onPress} style={[styles.catTile, active && styles.catTileActive]}>
+			<Image source={{uri: item.img}} style={styles.catThumb} resizeMode="cover" />
+			<View style={{flex: 1}}>
+				<Text numberOfLines={1} style={styles.catLabel}>
+					{item.name}
+				</Text>
+			</View>
+		</TouchableOpacity>
+	);
+
 	return (
 		<SafeAreaView style={{flex: 1}}>
-			<ScrollView style={{flex: 1}} contentContainerStyle={{paddingBottom: 80}} stickyHeaderIndices={[1]}>
+			<ScrollView style={{flex: 1}} contentContainerStyle={{paddingBottom: 120}} stickyHeaderIndices={[1]}>
+				{/* 0: header */}
 				<HomeHeader
 					showSearch={false}
 					etaText="Delivery in 59 minutes"
@@ -70,10 +105,12 @@ export default function HomeScreen({navigation}) {
 					onPressSearch={() => router.push('/search')}
 				/>
 
+				{/* 1: sticky search */}
 				<StickySearch />
 
+				{/* 2+: page content */}
 				<ScrollView style={{flex: 1}} contentContainerStyle={{padding: 12}}>
-					{/* Tabs */}
+					{/* top tabs */}
 					<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{paddingVertical: 2}}>
 						{tabs.map((t) => {
 							const active = t.id === activeTab;
@@ -91,9 +128,10 @@ export default function HomeScreen({navigation}) {
 						})}
 					</ScrollView>
 
+					{/* deals of week */}
 					<DealsOfWeek />
 
-					{/* Hero slider */}
+					{/* hero slider */}
 					<ScrollView
 						ref={slideRef}
 						horizontal
@@ -110,7 +148,17 @@ export default function HomeScreen({navigation}) {
 						))}
 					</ScrollView>
 
-					{/* Brands */}
+					{/* dots */}
+					<View style={styles.dotsRow}>
+						{SLIDES.map((_, i) => (
+							<View
+								key={`dot-${i}`}
+								style={[styles.dot, {backgroundColor: i === slideIndex ? COLORS.primary : COLORS.gray300}]}
+							/>
+						))}
+					</View>
+
+					{/* brands (gradient) */}
 					<FlatList
 						data={BRANDS}
 						horizontal
@@ -150,54 +198,94 @@ export default function HomeScreen({navigation}) {
 						style={{marginBottom: 12}}
 					/>
 
-					{/* Favourite categories */}
-					<Text style={{marginBottom: 8, textAlign: 'center', fontSize: 18, fontWeight: '800'}}>
-						FAVOURITE CATEGORIES
-					</Text>
-					<FlatList
-						data={categoryColumns}
-						keyExtractor={(_, idx) => `col-${idx}`}
-						horizontal
-						showsHorizontalScrollIndicator={false}
-						renderItem={({item}) => (
-							<View style={{marginRight: 12}}>
-								{item.map((it) => (
-									<FavRow key={it.id} item={it} active={it.id === activeCat} onPress={() => setActiveCat(it.id)} />
-								))}
-							</View>
-						)}
-						ItemSeparatorComponent={() => <View style={{width: 6}} />}
-						contentContainerStyle={{paddingVertical: 2}}
-						style={{marginBottom: 12}}
-					/>
+					{/* favourite categories */}
+					<View style={styles.favCategories}>
+						<Text style={styles.favHeader}>FAVOURITE CATEGORIES</Text>
 
-					{/* Products */}
+						<FlatList
+							data={categoryColumns}
+							keyExtractor={(_, idx) => `col-${idx}`}
+							horizontal
+							showsHorizontalScrollIndicator={false}
+							renderItem={({item}) => (
+								<View style={{marginRight: 5}}>
+									{item.map((it) => (
+										<CategoryTile
+											key={it.id}
+											item={it}
+											active={it.id === activeCat}
+											onPress={() => setActiveCat(it.id)}
+										/>
+									))}
+								</View>
+							)}
+							ItemSeparatorComponent={() => <View style={{width: 6}} />}
+							contentContainerStyle={{paddingVertical: 6}}
+							style={{marginBottom: 12}}
+						/>
+					</View>
+
+					{/* product strips with wired add + sheet */}
 					<ProductStrip
 						title="Hot & Fast Movers"
 						data={HOT_FAST_MOVERS}
 						onViewAll={() => goViewAll('Hot & Fast Movers')}
+						productCardProps={{
+							onAdd: handleAddToCart,
+							onPressCard: (it) => setSheetItem(it),
+						}}
 					/>
 					<ProductStrip
 						title="Trending This Week"
 						emoji="🔥"
 						data={TRENDING}
 						onViewAll={() => goViewAll('Trending This Week')}
+						productCardProps={{
+							onAdd: handleAddToCart,
+							onPressCard: (it) => setSheetItem(it),
+						}}
 					/>
 					<ProductStrip
 						title="Recommended for you"
 						data={RECOMMENDED}
 						onViewAll={() => goViewAll('Recommended for you')}
+						productCardProps={{
+							onAdd: handleAddToCart,
+							onPressCard: (it) => setSheetItem(it),
+						}}
 					/>
 
 					<OffersSection offers={OFFERS} onViewAll={() => goViewAll('Offers')} />
 					<HelpSection />
 				</ScrollView>
 			</ScrollView>
+
+			{/* product quick view sheet */}
+			{sheetItem ? (
+				<ProductSheet
+					item={sheetItem}
+					onClose={() => setSheetItem(null)}
+					onAdd={(it) => {
+						handleAddToCart(it);
+						setSheetItem(null);
+					}}
+				/>
+			) : null}
+
+			{/* cart bar appears only when there are items */}
+			{cart.items.length > 0 ? (
+				<CartBar
+					count={cart.items.reduce((s, it) => s + it.qty, 0)}
+					total={cart.total}
+					onPress={() => router.push('/cart')}
+				/>
+			) : null}
 		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
+	// slider
 	slideCard: {
 		width: width - 24,
 		height: 140,
@@ -210,6 +298,7 @@ const styles = StyleSheet.create({
 	dotsRow: {flexDirection: 'row', alignSelf: 'center', marginBottom: 14},
 	dot: {width: 8, height: 8, borderRadius: 999, marginHorizontal: 4},
 
+	// brand tiles
 	brandCardGrad: {
 		width: 120,
 		height: 100,
@@ -235,6 +324,7 @@ const styles = StyleSheet.create({
 	brandTextIcon: {fontWeight: '900', color: '#fff', fontSize: 20},
 	brandGradLabel: {fontWeight: '800', color: COLORS.dark, opacity: 0.9},
 
+	// tabs
 	tabPill: {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -246,4 +336,36 @@ const styles = StyleSheet.create({
 	tabPillActive: {backgroundColor: COLORS.brandGreenTint, borderWidth: 1, borderColor: COLORS.primary},
 	tabPillInactive: {backgroundColor: COLORS.gray100, borderWidth: 0, borderColor: 'transparent'},
 	tabLabel: {marginLeft: 8, fontWeight: '800'},
+
+	// favourite categories block
+	favCategories: {
+		backgroundColor: '#EAF6FF',
+		borderRadius: 16,
+		paddingTop: 14,
+		paddingHorizontal: 12,
+		marginBottom: 12,
+	},
+	favHeader: {
+		textAlign: 'center',
+		fontSize: 18,
+		fontWeight: '800',
+		marginBottom: 10,
+		color: COLORS.dark,
+		letterSpacing: 0.5,
+	},
+	catTile: {
+		width: 150,
+		height: 60,
+		borderRadius: 14,
+		backgroundColor: COLORS.white,
+		flexDirection: 'row',
+		alignItems: 'center',
+		paddingHorizontal: 10,
+		marginBottom: 10,
+		borderWidth: 1,
+		borderColor: COLORS.gray200,
+	},
+	catTileActive: {borderColor: COLORS.primary},
+	catThumb: {width: 40, height: 40, borderRadius: 10, marginRight: 10, backgroundColor: COLORS.gray100},
+	catLabel: {fontSize: 16, fontWeight: '700', color: COLORS.dark},
 });
