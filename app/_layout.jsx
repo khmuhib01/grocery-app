@@ -5,7 +5,6 @@ import {StatusBar} from 'expo-status-bar';
 import React from 'react';
 import {useColorScheme} from 'react-native';
 import {Provider} from 'react-redux';
-// NOTE: adjust this import if your Colors file is not under /constants
 import {Colors} from '../constants/Colors';
 import {store} from '../store';
 
@@ -45,6 +44,9 @@ export default function RootLayout() {
 
 					{/* Auth */}
 					<Stack.Screen name="auth/login" options={{title: 'Login'}} />
+
+					{/* Search */}
+					<Stack.Screen name="search/index" options={{title: 'Search'}} />
 
 					{/* Fallback */}
 					<Stack.Screen name="+not-found" />
