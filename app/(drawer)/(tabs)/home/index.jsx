@@ -8,7 +8,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 
 // redux
 import {useDispatch, useSelector} from 'react-redux';
-import {addToCart} from '../../../../store/slices/cartSlice';
+import {addToCart, decreaseQty, increaseQty} from '../../../../store/slices/cartSlice';
 
 // ui + constants + data
 import HomeHeader from '../../../../components/home/HomeHeader';
@@ -30,7 +30,6 @@ import {DealsOfWeek, HelpSection, OffersSection, ProductStrip, StickySearch} fro
 
 // product sheet & cart bar
 import CartBar from '../../../../components/cart/CartBar';
-import ProductSheet from '../../../../components/product/ProductSheet';
 
 const {width} = Dimensions.get('window');
 
@@ -40,25 +39,24 @@ export default function HomeScreen() {
 	// cart from redux
 	const totalQty = useSelector((state) => state.cart.totalQty);
 	const totalAmount = useSelector((state) => state.cart.totalAmount);
-	const cartItems = useSelector((state) => state.cart.items.length);
+	const cartLen = useSelector((state) => state.cart.items.length);
+	const cart = useSelector((state) => state.cart.items);
 
-	console.log('cartItems', cartItems);
+	// quick map for O(1) lookup
+	const cartMap = useMemo(() => {
+		const m = Object.create(null);
+		for (const it of cart) m[it.id] = it.qty;
+		return m;
+	}, [cart]);
 
 	const [slideIndex, setSlideIndex] = useState(0);
 	const [activeCat, setActiveCat] = useState(null);
 	const [activeTab, setActiveTab] = useState('grocery');
 
-	// product sheet state
-	const [sheetItem, setSheetItem] = useState(null);
-
 	// hero slider refs
 	const slideRef = useRef(null);
 	const indexRef = useRef(0);
 	const cardWidth = width - 24;
-
-	const storeProduct = useSelector((state) => state.products);
-
-	console.log('storeProduct', storeProduct);
 
 	useEffect(() => {
 		indexRef.current = slideIndex;
@@ -83,10 +81,9 @@ export default function HomeScreen() {
 	const categoryColumns = useMemo(() => chunk3(CATEGORIES), []);
 
 	// ---- actions ----
-	const handleAddToCart = (item) => {
-		// item should at least have: { id, name, price, img, ... }
-		dispatch(addToCart(item));
-	};
+	const handleAddToCart = (item) => dispatch(addToCart(item));
+	const handleInc = (id) => dispatch(increaseQty(id));
+	const handleDec = (id) => dispatch(decreaseQty(id));
 
 	// polished category tile
 	const CategoryTile = ({item, active, onPress}) => (
@@ -192,7 +189,7 @@ export default function HomeScreen() {
 											{'textIcon' in preset ? (
 												<Text style={styles.brandTextIcon}>{preset.textIcon}</Text>
 											) : (
-												<Ionicons name={preset.icon} size={22} color="#fff" />
+												<Ionicons name={preset.icon} size={18} color="#fff" />
 											)}
 										</View>
 										<Text style={styles.brandGradLabel} numberOfLines={1}>
@@ -214,8 +211,14 @@ export default function HomeScreen() {
 							keyExtractor={(_, idx) => `col-${idx}`}
 							horizontal
 							showsHorizontalScrollIndicator={false}
+							decelerationRate="fast"
+							disableIntervalMomentum
+							snapToAlignment="start"
+							ItemSeparatorComponent={() => <View style={{width: 8}} />}
+							contentContainerStyle={{paddingVertical: 6, paddingHorizontal: 2}}
+							style={{marginBottom: 10}}
 							renderItem={({item}) => (
-								<View style={{marginRight: 5}}>
+								<View style={{marginRight: 6}}>
 									{item.map((it) => (
 										<CategoryTile
 											key={it.id}
@@ -226,22 +229,26 @@ export default function HomeScreen() {
 									))}
 								</View>
 							)}
-							ItemSeparatorComponent={() => <View style={{width: 6}} />}
-							contentContainerStyle={{paddingVertical: 6}}
-							style={{marginBottom: 12}}
 						/>
 					</View>
 
-					{/* product strips with wired add + sheet */}
+					{/* product strips with wired add + qty control */}
 					<ProductStrip
 						title="Hot & Fast Movers"
 						data={HOT_FAST_MOVERS}
 						onViewAll={() => goViewAll('Hot & Fast Movers')}
 						productCardProps={{
 							onAdd: handleAddToCart,
-							onPressCard: (it) => setSheetItem(it),
+							onChangeQty: (next, item) => {
+								const current = cartMap[item.id] || 0;
+								if (next > current) handleInc(item.id);
+								else if (next < current) handleDec(item.id);
+							},
+							qty: (id) => cartMap[id] || 0,
+							onPressCard: (it) => router.push(`/products/${encodeURIComponent(it.id)}`),
 						}}
 					/>
+
 					<ProductStrip
 						title="Trending This Week"
 						emoji="🔥"
@@ -249,16 +256,29 @@ export default function HomeScreen() {
 						onViewAll={() => goViewAll('Trending This Week')}
 						productCardProps={{
 							onAdd: handleAddToCart,
-							onPressCard: (it) => setSheetItem(it),
+							onChangeQty: (next, item) => {
+								const current = cartMap[item.id] || 0;
+								if (next > current) handleInc(item.id);
+								else if (next < current) handleDec(item.id);
+							},
+							qty: (id) => cartMap[id] || 0,
+							onPressCard: (it) => router.push(`/product/${encodeURIComponent(it.id)}`),
 						}}
 					/>
+
 					<ProductStrip
 						title="Recommended for you"
 						data={RECOMMENDED}
 						onViewAll={() => goViewAll('Recommended for you')}
 						productCardProps={{
 							onAdd: handleAddToCart,
-							onPressCard: (it) => setSheetItem(it),
+							onChangeQty: (next, item) => {
+								const current = cartMap[item.id] || 0;
+								if (next > current) handleInc(item.id);
+								else if (next < current) handleDec(item.id);
+							},
+							qty: (id) => cartMap[id] || 0,
+							onPressCard: (it) => router.push(`/product/${encodeURIComponent(it.id)}`),
 						}}
 					/>
 
@@ -267,21 +287,9 @@ export default function HomeScreen() {
 				</ScrollView>
 			</ScrollView>
 
-			{/* product quick view sheet */}
-			{sheetItem ? (
-				<ProductSheet
-					item={sheetItem}
-					onClose={() => setSheetItem(null)}
-					onAdd={(it) => {
-						handleAddToCart(it);
-						setSheetItem(null);
-					}}
-				/>
-			) : null}
-
 			{/* cart bar (redux totals) */}
 			{totalQty > 0 ? (
-				<CartBar items={cartItems} count={totalQty} total={totalAmount} onPress={() => router.push('/cart')} />
+				<CartBar items={cartLen} count={totalQty} total={totalAmount} onPress={() => router.push('/cart')} />
 			) : null}
 		</SafeAreaView>
 	);
@@ -303,29 +311,35 @@ const styles = StyleSheet.create({
 
 	// brand tiles
 	brandCardGrad: {
-		width: 120,
-		height: 100,
-		borderRadius: 18,
-		padding: 12,
+		width: 70,
+		height: 70,
+		borderRadius: 14,
+		padding: 8,
 		alignItems: 'center',
 		justifyContent: 'center',
 		shadowColor: '#000',
-		shadowOpacity: 0.08,
-		shadowOffset: {width: 0, height: 6},
-		shadowRadius: 10,
-		elevation: 3,
+		shadowOpacity: 0.06,
+		shadowOffset: {width: 0, height: 4},
+		shadowRadius: 6,
+		elevation: 2,
 	},
 	brandIconBubble: {
-		width: 42,
-		height: 42,
-		borderRadius: 12,
+		width: 32,
+		height: 32,
+		borderRadius: 10,
 		backgroundColor: 'rgba(255,255,255,0.35)',
 		alignItems: 'center',
 		justifyContent: 'center',
-		marginBottom: 8,
+		marginBottom: 6,
 	},
-	brandTextIcon: {fontWeight: '900', color: '#fff', fontSize: 20},
-	brandGradLabel: {fontWeight: '800', color: COLORS.dark, opacity: 0.9},
+	brandTextIcon: {fontWeight: '900', color: '#fff', fontSize: 14},
+	brandGradLabel: {
+		fontWeight: '700',
+		color: COLORS.dark,
+		opacity: 0.9,
+		fontSize: 11,
+		textAlign: 'center',
+	},
 
 	// tabs
 	tabPill: {
@@ -340,35 +354,46 @@ const styles = StyleSheet.create({
 	tabPillInactive: {backgroundColor: COLORS.gray100, borderWidth: 0, borderColor: 'transparent'},
 	tabLabel: {marginLeft: 8, fontWeight: '800'},
 
-	// favourite categories block
+	// favourite categories
 	favCategories: {
 		backgroundColor: '#EAF6FF',
 		borderRadius: 16,
-		paddingTop: 14,
-		paddingHorizontal: 12,
-		marginBottom: 12,
+		paddingTop: 12,
+		paddingHorizontal: 10,
+		marginBottom: 10,
 	},
 	favHeader: {
 		textAlign: 'center',
-		fontSize: 18,
+		fontSize: 16,
 		fontWeight: '800',
-		marginBottom: 10,
+		marginBottom: 8,
 		color: COLORS.dark,
-		letterSpacing: 0.5,
+		letterSpacing: 0.4,
 	},
 	catTile: {
-		width: 150,
-		height: 60,
-		borderRadius: 14,
+		width: 130,
+		height: 54,
+		borderRadius: 12,
 		backgroundColor: COLORS.white,
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingHorizontal: 10,
-		marginBottom: 10,
+		marginBottom: 8,
 		borderWidth: 1,
 		borderColor: COLORS.gray200,
+		shadowColor: '#000',
+		shadowOpacity: 0.04,
+		shadowOffset: {width: 0, height: 2},
+		shadowRadius: 4,
+		elevation: 1,
 	},
 	catTileActive: {borderColor: COLORS.primary},
-	catThumb: {width: 40, height: 40, borderRadius: 10, marginRight: 10, backgroundColor: COLORS.gray100},
-	catLabel: {fontSize: 16, fontWeight: '700', color: COLORS.dark},
+	catThumb: {
+		width: 34,
+		height: 34,
+		borderRadius: 8,
+		marginRight: 10,
+		backgroundColor: COLORS.gray100,
+	},
+	catLabel: {fontSize: 12, fontWeight: '700', color: COLORS.dark},
 });

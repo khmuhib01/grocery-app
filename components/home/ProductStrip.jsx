@@ -9,8 +9,10 @@ export default function ProductStrip({
 	emoji,
 	data = [],
 	onViewAll,
-	productCardProps = {}, // ← forward props (onAdd, onPressCard, width, etc.)
+	productCardProps = {}, // { onAdd, onChangeQty, qty, onPressCard, ... }
 }) {
+	const {qty: qtyGetter, ...restProps} = productCardProps;
+
 	return (
 		<View style={styles.wrap}>
 			<View style={styles.header}>
@@ -34,7 +36,8 @@ export default function ProductStrip({
 					<ProductCard
 						item={item}
 						width={180}
-						{...productCardProps} // ← THIS is the fix
+						qty={typeof qtyGetter === 'function' ? qtyGetter(item.id) : qtyGetter}
+						{...restProps}
 					/>
 				)}
 				contentContainerStyle={{paddingVertical: 2}}

@@ -36,6 +36,7 @@ export default function TabsLayout() {
 			/>
 			{/* 👇 Hide the dynamic detail route from being a tab */}
 			<Tabs.Screen name="orders/[id]" options={{href: null}} />
+			<Tabs.Screen name="products/[id]" options={{href: null}} />
 
 			<Tabs.Screen
 				name="profile/index"
