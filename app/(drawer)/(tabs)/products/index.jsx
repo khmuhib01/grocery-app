@@ -128,7 +128,7 @@ export default function ProductScreen() {
 						{hasActiveFilters ? <View style={styles.badge} /> : null}
 					</TouchableOpacity>
 
-					<TouchableOpacity style={styles.circleBtn} onPress={() => router.push('/settings')} activeOpacity={0.9}>
+					<TouchableOpacity style={styles.circleBtn} onPress={() => router.push('/profile')} activeOpacity={0.9}>
 						<Ionicons name="settings-outline" size={18} color={COLORS.dark} />
 					</TouchableOpacity>
 				</View>
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		backgroundColor: '#fff',
+		backgroundColor: COLORS.success,
 	},
 	headerTitle: {fontSize: 20, fontWeight: '900', color: COLORS.dark},
 	circleBtn: {

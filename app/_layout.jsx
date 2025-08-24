@@ -37,6 +37,7 @@ export default function RootLayout() {
 					<Stack.Screen name="(drawer)" options={{headerShown: false}} />
 
 					{/* Push search on top of drawer so back arrow appears */}
+					<Stack.Screen name="index" options={{title: 'Home', headerBackTitleVisible: false, headerShown: false}} />
 					<Stack.Screen name="search" options={{title: 'Search', headerBackTitleVisible: false}} />
 					<Stack.Screen name="checkout/index" options={{title: 'Checkout', headerBackTitleVisible: false}} />
 
