@@ -40,11 +40,22 @@ const slice = createSlice({
 		},
 		decreaseQty: (state, action) => {
 			const id = action.payload;
-			const item = state.items.find((i) => i.id === id);
-			if (!item || item.qty <= 1) return;
-			item.qty -= 1;
-			state.totalQty -= 1;
-			state.totalAmount -= Number(item.price) || 0;
+			const idx = state.items.findIndex((i) => i.id === id);
+			if (idx === -1) return;
+
+			const item = state.items[idx];
+			item.qty = Math.max(0, (item.qty || 0) - 1);
+
+			if (item.qty === 0) {
+				state.items.splice(idx, 1); // remove item completely
+			}
+
+			// If you also store precomputed totals in state, recompute here:
+			// const totals = state.items.reduce((acc, it) => ({
+			//   qty: acc.qty + it.qty, amount: acc.amount + it.qty * it.price
+			// }), { qty: 0, amount: 0 });
+			// state.totalQty = totals.qty;
+			// state.totalAmount = totals.amount;
 		},
 		clearCart: (state) => {
 			state.items = [];
