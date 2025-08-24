@@ -6,6 +6,11 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
+// redux
+import {useDispatch, useSelector} from 'react-redux';
+import {addToCart} from '../../../../store/slices/cartSlice';
+
+// ui + constants + data
 import HomeHeader from '../../../../components/home/HomeHeader';
 import {COLORS} from '../../../../constants/Colors';
 import {
@@ -29,19 +34,28 @@ import ProductSheet from '../../../../components/product/ProductSheet';
 
 const {width} = Dimensions.get('window');
 
-export default function HomeScreen({navigation}) {
+export default function HomeScreen() {
+	const dispatch = useDispatch();
+
+	// cart from redux
+	const totalQty = useSelector((state) => state.cart.totalQty);
+	const totalAmount = useSelector((state) => state.cart.totalAmount);
+
 	const [slideIndex, setSlideIndex] = useState(0);
 	const [activeCat, setActiveCat] = useState(null);
 	const [activeTab, setActiveTab] = useState('grocery');
 
-	// sheet + cart state
+	// product sheet state
 	const [sheetItem, setSheetItem] = useState(null);
-	const [cart, setCart] = useState({items: [], total: 0});
 
 	// hero slider refs
 	const slideRef = useRef(null);
 	const indexRef = useRef(0);
 	const cardWidth = width - 24;
+
+	const storeProduct = useSelector((state) => state.products);
+
+	console.log('storeProduct', storeProduct);
 
 	useEffect(() => {
 		indexRef.current = slideIndex;
@@ -62,23 +76,13 @@ export default function HomeScreen({navigation}) {
 		setSlideIndex(index);
 	};
 
-	const goViewAll = (section) => navigation.navigate('Search', {section});
+	const goViewAll = (section) => router.push(`/search?section=${encodeURIComponent(section)}`);
 	const categoryColumns = useMemo(() => chunk3(CATEGORIES), []);
 
 	// ---- actions ----
 	const handleAddToCart = (item) => {
-		// very simple local cart; replace with your store later
-		setCart((prev) => {
-			const nextItems = [...prev.items];
-			const idx = nextItems.findIndex((it) => it.id === item.id);
-			if (idx === -1) {
-				nextItems.push({...item, qty: 1});
-			} else {
-				nextItems[idx] = {...nextItems[idx], qty: nextItems[idx].qty + 1};
-			}
-			const total = nextItems.reduce((s, it) => s + it.price * it.qty, 0);
-			return {items: nextItems, total};
-		});
+		// item should at least have: { id, name, price, img, ... }
+		dispatch(addToCart(item));
 	};
 
 	// polished category tile
@@ -272,14 +276,8 @@ export default function HomeScreen({navigation}) {
 				/>
 			) : null}
 
-			{/* cart bar appears only when there are items */}
-			{cart.items.length > 0 ? (
-				<CartBar
-					count={cart.items.reduce((s, it) => s + it.qty, 0)}
-					total={cart.total}
-					onPress={() => router.push('/cart')}
-				/>
-			) : null}
+			{/* cart bar (redux totals) */}
+			{totalQty > 0 ? <CartBar count={totalQty} total={totalAmount} onPress={() => router.push('/cart')} /> : null}
 		</SafeAreaView>
 	);
 }
