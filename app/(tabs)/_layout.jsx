@@ -48,6 +48,8 @@ export default function TabsLayout() {
 				tabBarActiveTintColor: '#16a34a',
 				tabBarInactiveTintColor: '#94a3b8',
 				tabBarStyle: {
+					width: '90%',
+					marginHorizontal: '5%',
 					position: 'absolute',
 					left: 12,
 					right: 12,

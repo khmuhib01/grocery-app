@@ -11,7 +11,7 @@ const Login = () => {
 	// TODO: replace with real apiLogin -> save token -> go to tabs
 	const handleMockLogin = async () => {
 		await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, 'demo_token');
-		router.replace('/(tabs)/home/index');
+		router.replace('/(tabs)/home');
 	};
 
 	return (
