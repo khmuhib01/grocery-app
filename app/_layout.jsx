@@ -1,11 +1,10 @@
 // app/_layout.jsx
 import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
-import {Drawer} from 'expo-router/drawer';
+import {Stack} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
 import React from 'react';
 import {useColorScheme} from 'react-native';
 import {Provider} from 'react-redux';
-import CategoriesDrawer from '../components/CategoriesDrawer'; // 👈 add this
 import {Colors} from '../constants/Colors';
 import {store} from '../store';
 
@@ -33,25 +32,15 @@ export default function RootLayout() {
 	return (
 		<ThemeProvider value={theme}>
 			<Provider store={store}>
-				<Drawer
-					screenOptions={{
-						headerShown: false,
-						drawerStyle: {width: '80%', backgroundColor: '#fff'},
-						overlayColor: 'rgba(0,0,0,0.35)',
-					}}
-					drawerContent={(props) => <CategoriesDrawer {...props} />} // 👈 show only categories
-				>
-					{/* keep tabs visible in drawer list or hide, your call; typically we hide and just show categories */}
-					<Drawer.Screen name="(tabs)" options={{drawerItemStyle: {display: 'none'}}} />
+				<Stack>
+					{/* Drawer app (tabs live inside it) */}
+					<Stack.Screen name="(drawer)" options={{headerShown: false}} />
 
-					{/* hide navigable routes from drawer */}
-					{/* <Drawer.Screen name="index" options={{drawerItemStyle: {display: 'none'}}} />
-					<Drawer.Screen name="onboarding/index" options={{drawerItemStyle: {display: 'none'}}} />
-					<Drawer.Screen name="auth/login" options={{title: 'Login', drawerItemStyle: {display: 'none'}}} />
-					<Drawer.Screen name="search/index" options={{title: 'Search', drawerItemStyle: {display: 'none'}}} />
-					<Drawer.Screen name="+not-found" options={{drawerItemStyle: {display: 'none'}}} /> */}
-				</Drawer>
+					{/* Push search on top of drawer so back arrow appears */}
+					<Stack.Screen name="search" options={{title: 'Search', headerBackTitleVisible: false}} />
 
+					<Stack.Screen name="+not-found" />
+				</Stack>
 				<StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
 			</Provider>
 		</ThemeProvider>

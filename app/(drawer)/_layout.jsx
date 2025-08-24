@@ -1,10 +1,8 @@
 // app/(drawer)/_layout.jsx
 import {Drawer} from 'expo-router/drawer';
-import {useColorScheme} from 'react-native';
 import CategoriesDrawer from '../../components/CategoriesDrawer';
 
 export default function DrawerLayout() {
-	const scheme = useColorScheme();
 	return (
 		<Drawer
 			screenOptions={{
@@ -14,7 +12,7 @@ export default function DrawerLayout() {
 			}}
 			drawerContent={(props) => <CategoriesDrawer {...props} />}
 		>
-			{/* Your tabs live inside the Drawer */}
+			{/* Tabs live INSIDE the drawer group */}
 			<Drawer.Screen name="(tabs)" options={{drawerItemStyle: {display: 'none'}}} />
 		</Drawer>
 	);

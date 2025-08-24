@@ -8,7 +8,7 @@ export default function Home() {
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
-			router.replace('/(tabs)/home');
+			router.replace('/(drawer)/(tabs)/home');
 		}, 2000);
 
 		return () => clearTimeout(timer);

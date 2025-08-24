@@ -12,8 +12,8 @@
 		".expo/types/**/*.ts",
 		"expo-env.d.ts",
 		"constants/Colors.js",
-		"app/(tabs)/index.jsx",
-		"app/(tabs)/_layout.jsx",
+		"app/(drawer)/(tabs)/index.jsx",
+		"app/(drawer)/(tabs)/_layout.jsx",
 		"app/+not-found.jsx",
 		"app/_layout.jsx"
 	]
