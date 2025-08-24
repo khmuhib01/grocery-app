@@ -1,29 +1,36 @@
 // components/product/ProductCard.jsx
 import {Ionicons} from '@expo/vector-icons';
-import {useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 import {COLORS} from '../../constants/Colors';
+import {addToCart, decreaseQty, increaseQty} from '../../store/slices/cartSlice';
 
 export default function ProductCard({
 	item,
-	qty: controlledQty, // optional (controlled)
-	onChangeQty, // optional (qty => void)
-	onAdd, // optional (item => void)
 	width = 160,
 	onPressCard, // optional (item => void)
+	onChangeQty, // optional (nextQty => void) - we'll still call it if provided
 }) {
-	const isControlled = typeof controlledQty === 'number';
-	const [qtyUncontrolled, setQtyUncontrolled] = useState(0);
-	const qty = isControlled ? controlledQty : qtyUncontrolled;
+	const dispatch = useDispatch();
 
-	const setQty = (next) => {
-		if (!isControlled) setQtyUncontrolled(next);
-		onChangeQty?.(next);
-	};
+	// derive current qty for this item from the cart
+	const qty = useSelector((s) => s.cart.items.find((i) => i.id === item.id)?.qty || 0);
 
 	const handleAdd = () => {
-		setQty(1);
-		onAdd?.(item); // ← bubbles up to HomeScreen → increments cart
+		dispatch(addToCart(item));
+		onChangeQty?.(1);
+	};
+
+	const handleInc = () => {
+		dispatch(increaseQty(item.id));
+		onChangeQty?.(qty + 1);
+	};
+
+	const handleDec = () => {
+		if (qty > 0) {
+			dispatch(decreaseQty(item.id));
+			onChangeQty?.(qty - 1);
+		}
 	};
 
 	return (
@@ -52,11 +59,11 @@ export default function ProductCard({
 			<View style={styles.actionBottom}>
 				{qty > 0 ? (
 					<View style={styles.stepper}>
-						<TouchableOpacity onPress={() => setQty(Math.max(0, qty - 1))} style={styles.stepBtn} activeOpacity={0.8}>
+						<TouchableOpacity onPress={handleDec} style={styles.stepBtn} activeOpacity={0.8}>
 							<Ionicons name="remove" size={18} color="#fff" />
 						</TouchableOpacity>
 						<Text style={styles.qtyText}>{qty}</Text>
-						<TouchableOpacity onPress={() => setQty(qty + 1)} style={styles.stepBtn} activeOpacity={0.8}>
+						<TouchableOpacity onPress={handleInc} style={styles.stepBtn} activeOpacity={0.8}>
 							<Ionicons name="add" size={18} color="#fff" />
 						</TouchableOpacity>
 					</View>

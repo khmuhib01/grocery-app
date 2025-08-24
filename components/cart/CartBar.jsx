@@ -4,13 +4,13 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {COLORS} from '../../constants/Colors';
 
-export default function CartBar({count = 0, total = 0, onPress}) {
+export default function CartBar({items, count = 0, total = 0, onPress}) {
 	const inset = useSafeAreaInsets();
 	return (
 		<View style={[styles.wrap, {paddingBottom: inset.bottom + 8}]}>
 			<TouchableOpacity activeOpacity={0.9} style={styles.btn} onPress={onPress}>
 				<Text style={styles.btnTxt}>
-					{count} {count === 1 ? 'Item' : 'Items'}
+					{items} {count === 1 ? 'Item' : 'Items'}
 				</Text>
 				<Text style={styles.btnTxt}>৳{Number(total).toLocaleString()}</Text>
 				<Text style={[styles.btnTxt, styles.bold]}>View Cart</Text>

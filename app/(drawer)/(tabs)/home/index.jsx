@@ -40,6 +40,9 @@ export default function HomeScreen() {
 	// cart from redux
 	const totalQty = useSelector((state) => state.cart.totalQty);
 	const totalAmount = useSelector((state) => state.cart.totalAmount);
+	const cartItems = useSelector((state) => state.cart.items.length);
+
+	console.log('cartItems', cartItems);
 
 	const [slideIndex, setSlideIndex] = useState(0);
 	const [activeCat, setActiveCat] = useState(null);
@@ -277,7 +280,9 @@ export default function HomeScreen() {
 			) : null}
 
 			{/* cart bar (redux totals) */}
-			{totalQty > 0 ? <CartBar count={totalQty} total={totalAmount} onPress={() => router.push('/cart')} /> : null}
+			{totalQty > 0 ? (
+				<CartBar items={cartItems} count={totalQty} total={totalAmount} onPress={() => router.push('/cart')} />
+			) : null}
 		</SafeAreaView>
 	);
 }
