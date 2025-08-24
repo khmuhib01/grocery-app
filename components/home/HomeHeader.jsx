@@ -1,7 +1,6 @@
 // components/HomeHeader.jsx
 import {Ionicons} from '@expo/vector-icons';
 import {useNavigation} from '@react-navigation/native';
-import {LinearGradient} from 'expo-linear-gradient';
 import {router} from 'expo-router';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {COLORS} from '../../constants/Colors';
@@ -9,23 +8,14 @@ import {COLORS} from '../../constants/Colors';
 export default function HomeHeader({
 	etaText = 'Delivery in 59 minutes',
 	area = 'Kachukhet',
-	onPressLocation = () => {
-		router.push('/search');
-	},
-	onPressSearch = () => {
-		router.push('/search');
-	},
+	onPressLocation = () => router.push('/search'),
+	onPressSearch = () => router.push('/search'),
 	showSearch = true,
 }) {
 	const navigation = useNavigation();
 
 	return (
-		<LinearGradient
-			colors={[COLORS.success, '#5ad08a']}
-			start={{x: 0, y: 0}}
-			end={{x: 1, y: 1}}
-			style={styles.headerWrap}
-		>
+		<View style={styles.headerWrap}>
 			{/* top bar: menu • logo • settings */}
 			<View style={styles.headerTop}>
 				<TouchableOpacity style={styles.circleBtn} onPress={() => navigation?.openDrawer?.()} activeOpacity={0.9}>
@@ -54,16 +44,6 @@ export default function HomeHeader({
 					<Text style={styles.etaText}>{area}</Text>
 					<Ionicons name="chevron-forward" size={14} color={COLORS.primary} />
 				</View>
-
-				{/* <View style={styles.locPill}>
-					<Ionicons name="location-outline" size={14} color={COLORS.dark} />
-					<Text style={styles.areaText} numberOfLines={1}>
-						{area}
-					</Text>
-					<View style={styles.rightArrow}>
-						<Ionicons name="chevron-forward" size={14} color={COLORS.primary} />
-					</View>
-				</View> */}
 			</TouchableOpacity>
 
 			{/* header search */}
@@ -73,18 +53,18 @@ export default function HomeHeader({
 					<Text style={styles.searchPlaceholder}>Search by product name or brand</Text>
 				</TouchableOpacity>
 			)}
-		</LinearGradient>
+		</View>
 	);
 }
 
 const styles = StyleSheet.create({
 	headerWrap: {
+		backgroundColor: COLORS.success, // ✅ fixed color
 		paddingTop: 12,
 		paddingHorizontal: 12,
 		paddingBottom: 14,
 	},
 
-	// top
 	headerTop: {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -103,10 +83,8 @@ const styles = StyleSheet.create({
 	brandSecondary: {fontSize: 20, fontWeight: '900', color: COLORS.dark, marginLeft: 4, textTransform: 'lowercase'},
 	ml4: {marginLeft: 4},
 
-	// middle row
 	infoRow: {marginTop: 10, gap: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
 	etaPill: {
-		alignSelf: 'flex-start',
 		flexDirection: 'row',
 		alignItems: 'center',
 		gap: 6,
@@ -119,29 +97,6 @@ const styles = StyleSheet.create({
 	},
 	etaText: {color: COLORS.primary, fontWeight: '900', fontSize: 12},
 
-	locPill: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 8,
-		backgroundColor: '#ffffff',
-		borderRadius: 12,
-		paddingVertical: 8,
-		paddingHorizontal: 10,
-		borderWidth: 1,
-		borderColor: 'rgba(0,0,0,0.06)',
-	},
-	areaText: {color: COLORS.dark, fontWeight: '800', flexShrink: 1},
-	rightArrow: {
-		marginLeft: 6,
-		width: 22,
-		height: 22,
-		borderRadius: 11,
-		backgroundColor: '#f2f8f3',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-
-	// search
 	searchBar: {
 		marginTop: 10,
 		height: 46,
@@ -149,7 +104,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 12,
 		flexDirection: 'row',
 		alignItems: 'center',
-		backgroundColor: '#ffffff',
+		backgroundColor: COLORS.white,
 		borderWidth: 1,
 		borderColor: 'rgba(0,0,0,0.06)',
 		shadowColor: '#000',

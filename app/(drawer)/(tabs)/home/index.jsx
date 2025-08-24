@@ -192,7 +192,7 @@ export default function HomeScreen() {
 											{'textIcon' in preset ? (
 												<Text style={styles.brandTextIcon}>{preset.textIcon}</Text>
 											) : (
-												<Ionicons name={preset.icon} size={22} color="#fff" />
+												<Ionicons name={preset.icon} size={18} color="#fff" />
 											)}
 										</View>
 										<Text style={styles.brandGradLabel} numberOfLines={1}>
@@ -214,8 +214,15 @@ export default function HomeScreen() {
 							keyExtractor={(_, idx) => `col-${idx}`}
 							horizontal
 							showsHorizontalScrollIndicator={false}
+							// smoother horizontal scroll behavior
+							decelerationRate="fast"
+							disableIntervalMomentum
+							snapToAlignment="start"
+							ItemSeparatorComponent={() => <View style={{width: 8}} />}
+							contentContainerStyle={{paddingVertical: 6, paddingHorizontal: 2}}
+							style={{marginBottom: 10}}
 							renderItem={({item}) => (
-								<View style={{marginRight: 5}}>
+								<View style={{marginRight: 6}}>
 									{item.map((it) => (
 										<CategoryTile
 											key={it.id}
@@ -226,9 +233,6 @@ export default function HomeScreen() {
 									))}
 								</View>
 							)}
-							ItemSeparatorComponent={() => <View style={{width: 6}} />}
-							contentContainerStyle={{paddingVertical: 6}}
-							style={{marginBottom: 12}}
 						/>
 					</View>
 
@@ -301,31 +305,37 @@ const styles = StyleSheet.create({
 	dotsRow: {flexDirection: 'row', alignSelf: 'center', marginBottom: 14},
 	dot: {width: 8, height: 8, borderRadius: 999, marginHorizontal: 4},
 
-	// brand tiles
+	// brand tiles (compact)
 	brandCardGrad: {
-		width: 120,
-		height: 100,
-		borderRadius: 18,
-		padding: 12,
+		width: 70,
+		height: 70,
+		borderRadius: 14,
+		padding: 8,
 		alignItems: 'center',
 		justifyContent: 'center',
 		shadowColor: '#000',
-		shadowOpacity: 0.08,
-		shadowOffset: {width: 0, height: 6},
-		shadowRadius: 10,
-		elevation: 3,
+		shadowOpacity: 0.06,
+		shadowOffset: {width: 0, height: 4},
+		shadowRadius: 6,
+		elevation: 2,
 	},
 	brandIconBubble: {
-		width: 42,
-		height: 42,
-		borderRadius: 12,
+		width: 32,
+		height: 32,
+		borderRadius: 10,
 		backgroundColor: 'rgba(255,255,255,0.35)',
 		alignItems: 'center',
 		justifyContent: 'center',
-		marginBottom: 8,
+		marginBottom: 6,
 	},
-	brandTextIcon: {fontWeight: '900', color: '#fff', fontSize: 20},
-	brandGradLabel: {fontWeight: '800', color: COLORS.dark, opacity: 0.9},
+	brandTextIcon: {fontWeight: '900', color: '#fff', fontSize: 14},
+	brandGradLabel: {
+		fontWeight: '700',
+		color: COLORS.dark,
+		opacity: 0.9,
+		fontSize: 11,
+		textAlign: 'center',
+	},
 
 	// tabs
 	tabPill: {
@@ -340,35 +350,53 @@ const styles = StyleSheet.create({
 	tabPillInactive: {backgroundColor: COLORS.gray100, borderWidth: 0, borderColor: 'transparent'},
 	tabLabel: {marginLeft: 8, fontWeight: '800'},
 
-	// favourite categories block
+	// favourite categories container (tightened padding/spacing)
 	favCategories: {
 		backgroundColor: '#EAF6FF',
 		borderRadius: 16,
-		paddingTop: 14,
-		paddingHorizontal: 12,
-		marginBottom: 12,
+		paddingTop: 12,
+		paddingHorizontal: 10,
+		marginBottom: 10,
 	},
 	favHeader: {
 		textAlign: 'center',
-		fontSize: 18,
+		fontSize: 16, // ↓ from 18
 		fontWeight: '800',
-		marginBottom: 10,
+		marginBottom: 8, // ↓ from 10
 		color: COLORS.dark,
-		letterSpacing: 0.5,
+		letterSpacing: 0.4,
 	},
+
+	// category tile (more compact)
 	catTile: {
-		width: 150,
-		height: 60,
-		borderRadius: 14,
+		width: 130, // ↓ from 150
+		height: 54, // ↓ from 60
+		borderRadius: 12, // ↓ from 14
 		backgroundColor: COLORS.white,
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingHorizontal: 10,
-		marginBottom: 10,
+		marginBottom: 8, // ↓ from 10
 		borderWidth: 1,
 		borderColor: COLORS.gray200,
+		shadowColor: '#000',
+		shadowOpacity: 0.04,
+		shadowOffset: {width: 0, height: 2},
+		shadowRadius: 4,
+		elevation: 1,
 	},
 	catTileActive: {borderColor: COLORS.primary},
-	catThumb: {width: 40, height: 40, borderRadius: 10, marginRight: 10, backgroundColor: COLORS.gray100},
-	catLabel: {fontSize: 16, fontWeight: '700', color: COLORS.dark},
+
+	catThumb: {
+		width: 34, // ↓ from 40
+		height: 34, // ↓ from 40
+		borderRadius: 8, // ↓ from 10
+		marginRight: 10,
+		backgroundColor: COLORS.gray100,
+	},
+	catLabel: {
+		fontSize: 12, // ↓ from 16
+		fontWeight: '700',
+		color: COLORS.dark,
+	},
 });
